@@ -1,0 +1,16 @@
+/* app/globals.css */
+@import "tailwindcss";            /* must be first */
+
+/* Define design tokens so Tailwind v4 generates classes like bg-brand-cream */
+@theme {
+  --color-brand-text: #2e3159;
+  --color-brand-teal: #318484;
+  --color-brand-cream: #fffef8;
+
+  --shadow-pill: 0 4px 16px rgba(0,0,0,0.06);
+  --radius-pill: 9999px;
+  --ease-gentle: cubic-bezier(.22,.61,.36,1);
+}
+
+html { scroll-behavior: smooth; }
+body { @apply bg-brand-cream text-brand-text antialiased; }
