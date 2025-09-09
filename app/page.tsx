@@ -5,6 +5,7 @@ import Container from "../components/Container";
 import FadeIn from "../components/FadeIn";
 import { AnchorIcon, CompassIcon, HandsIcon } from "../components/Icons";
 import { useState } from "react";
+import Link from "next/link";
 
 function CTAButton({ className = "" }: { className?: string }) {
   return (
@@ -70,10 +71,14 @@ export default function Page() {
             />
           </div>
 
-          <div className="mt-16 text-center">
-            <a href="#faq" className="inline-flex items-center gap-3 text-[18px] md:text-[20px] underline-offset-4 hover:underline">
-              See the full course outline <span aria-hidden>→</span>
-            </a>
+          {/* CTA link to the outline page */}
+          <div className="mt-12 flex justify-center">
+            <Link
+              href="/course-outline"
+              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-white bg-[#318484] hover:opacity-90 transition"
+            >
+              View the full guide outline
+            </Link>
           </div>
         </Container>
       </FadeIn>

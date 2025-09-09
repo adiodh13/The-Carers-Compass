@@ -1,2 +1,9 @@
-// tailwind.config.ts (optional in v4)
-export default {};
+module.exports = {
+  theme: {
+    extend: {
+      fontFamily: {
+        serif: ["var(--font-lora)", "serif"], // now `font-serif` = Lora
+      },
+    },
+  },
+};
