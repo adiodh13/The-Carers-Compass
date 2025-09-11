@@ -9,7 +9,7 @@ export default function Container({
   children: React.ReactNode;
 }) {
   return (
-    <div className={clsx("mx-auto w-full max-w-[1200px] px-4 md:px-6", className)}>
+    <div className={clsx("mx-auto w-full max-w-[900px] px-4 md:px-6", className)}>
       {children}
     </div>
   );

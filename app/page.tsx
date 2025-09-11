@@ -9,22 +9,21 @@ import Link from "next/link";
 
 function CTAButton({ className = "" }: { className?: string }) {
   return (
-    <a
-      href="#benefits"
+    <Link
+      href="/Course/how-to-use"
       className={
         "inline-flex items-center justify-center rounded-pill bg-brand-teal text-white px-8 py-5 text-[20px] md:text-[28px] font-semibold shadow-pill hover:opacity-95 active:translate-y-[1px] transition " +
         className
       }
     >
       Start the free guide
-    </a>
+    </Link>
   );
 }
 
 export default function Page() {
   return (
     <>
-      <Navbar />
 
       {/* HERO */}
       <FadeIn as="section" className="pt-6 md:pt-10">
@@ -40,7 +39,7 @@ export default function Page() {
               A free, task-oriented guide to help you steady yourself, support your loved one,
               and find clarity in the weeks ahead.
             </p>
-                   
+
             <CTAButton />
           </div>
         </Container>
@@ -160,7 +159,7 @@ function FAQ() {
 
 function Contact() {
   return (
-    <div id="contact" className="rounded-3xl border border-black/10 bg-white p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+    <div id="contact" className="rounded-3xl border border-blue/10 p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
       <div className="text-[28px] md:text-[40px] font-bold leading-tight">
         We’re here to listen.
       </div>

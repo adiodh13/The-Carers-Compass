@@ -62,7 +62,7 @@ const CARDS: Card[] = [
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#f7f7f3]">
+    <main className="min-h-screen bg-[#fffef7]">
       <section
         className="mx-auto w-full max-w-[960px] px-6 py-16"
         style={{ color: NAVY }}
