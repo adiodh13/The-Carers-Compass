@@ -14,3 +14,27 @@
 
 html { scroll-behavior: smooth; }
 body { @apply bg-brand-cream text-brand-text antialiased; }
+
+/* --- Section 1 additions --- */
+
+/* Soft fade-in is done via translate/opacity in SectionBlock; no keyframes needed. */
+
+/* Breathing animation for the circle */
+@keyframes breathe {
+  0% { transform: scale(0.9); opacity: 0.85; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.85; }
+}
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Checkbox pop when checked */
+@keyframes checkpop {
+  0% { transform: scale(1); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.checked\:animate-checkpop:checked {
+  animation: checkpop 220ms ease-out;
+}

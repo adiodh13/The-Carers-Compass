@@ -24,7 +24,6 @@ function CTAButton({ className = "" }: { className?: string }) {
 export default function Page() {
   return (
     <>
-
       {/* HERO */}
       <FadeIn as="section" className="pt-6 md:pt-10">
         <Container>
@@ -104,11 +103,11 @@ export default function Page() {
   );
 }
 
-/* smaller components (unchanged) */
+/* smaller components (unchanged except centering) */
 function Benefit({ icon, title, blurb }: { icon: React.ReactNode; title: string; blurb: string }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div>{icon}</div>
+    <div className="flex flex-col items-center text-center gap-4">
+      <div className="flex items-center justify-center">{icon}</div>
       <h3 className="text-[22px] md:text-[28px] font-bold leading-snug">{title}</h3>
       <p className="text-[18px] md:text-[20px] leading-relaxed text-black/70">{blurb}</p>
     </div>

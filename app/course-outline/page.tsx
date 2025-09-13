@@ -124,7 +124,7 @@ export default function Page() {
         {/* CTA at the bottom */}
         <div className="mt-16 flex justify-center">
           <a
-            href="/course/start" /* adjust to your actual first-module route */
+            href="/Course/how-to-use" /* adjust to your actual first-module route */
             className="inline-flex items-center justify-center rounded-full px-8 py-4
                        text-lg font-semibold text-white bg-[#318484] hover:opacity-90
                        active:translate-y-[1px] transition"
