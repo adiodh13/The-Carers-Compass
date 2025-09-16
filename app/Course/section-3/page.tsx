@@ -394,7 +394,7 @@ export default function SectionThreePage() {
           </p>
           <div className="mt-6 flex justify-center">
             <Link
-              href="/course/section-4"
+              href="/Course/section-4"
               className="rounded-full px-6 py-3 font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
               style={{ backgroundColor: TEAL }}
             >
