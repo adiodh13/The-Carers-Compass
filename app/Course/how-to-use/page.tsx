@@ -71,7 +71,7 @@ export default function HowToUsePage() {
         <FadeIn>
           <div className="mt-12">
             <Link
-              href="/Course/section-1"
+              href="/course/section-1"
               className="inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-semibold shadow-sm transition
                          focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 hover:opacity-90"
               style={{

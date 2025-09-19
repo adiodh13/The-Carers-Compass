@@ -5,9 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
-import TextareaWithCount from "@/components/TextareaWithCount";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
+import { useAuth } from "@/components/useAuth";
+import AutoSaveTextarea from "@/components/AutoSaveTextarea";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -21,7 +22,41 @@ type Milestones = {
 };
 
 export default function SectionThreePage() {
-  // ----- Milestones (for gentle progress nudges)
+  const { user } = useAuth();
+  const docPath = user ? `user_progress/${user.uid}/sections/section-3` : null;
+
+  // Local helper: gate saving behind sign-in and standardise styling
+  const Field: React.FC<{
+    field: string;
+    label: string;
+    placeholder?: string;
+    rows?: number;
+  }> = ({ field, label, placeholder, rows = 6 }) => {
+    if (!docPath) {
+      return (
+        <div className="w-full">
+          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
+            {label}
+          </label>
+          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
+            Sign in to save
+          </div>
+        </div>
+      );
+    }
+    return (
+      <AutoSaveTextarea
+        key={`${docPath}:${field}`} // reset on user change
+        docPath={docPath}
+        field={field}
+        label={label}
+        placeholder={placeholder}
+        rows={rows}
+      />
+    );
+  };
+
+  // ----- Milestones (for gentle progress nudges) -----
   const [milestones, setMilestones] = useState<Milestones>({
     timesSet: false,
     baselineSources: false,
@@ -78,7 +113,7 @@ export default function SectionThreePage() {
   return (
     <div
       ref={pageRef}
-      style={{ backgroundColor: "rgba(236, 245, 243, 0.5)" }} // off-white with soft teal tint
+      style={{ backgroundColor: "rgba(236, 245, 243, 0.5)" }}
       className="min-h-screen"
     >
       {/* Sticky progress header */}
@@ -115,17 +150,16 @@ export default function SectionThreePage() {
           </h2>
           <p className="mt-3 leading-relaxed" style={{ color: NAVY }}>
             Short, focused bursts work best: 30–60 minutes, a couple of times a week. Choose times that fit your
-            schedule. Set a timer so you don’t go over. When your session ends, wrap up with Steps 4 & 5 below,
+            schedule. Set a timer so you don’t go over. When your session ends, wrap up with Steps 4 &amp; 5 below,
             then leave the room and do something different—this makes stopping easier.
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="learning-times"
-              label='When do you want your learning windows to be?'
+            <Field
+              field="times"
+              label="When do you want your learning windows to be?"
               placeholder="e.g. Tuesday evenings, Saturday mornings"
-              storageKey="section3:times"
-              navy={NAVY}
+              rows={4}
             />
           </div>
 
@@ -193,12 +227,11 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="baseline-sources"
+            <Field
+              field="baseline"
               label="What are your trusted sources?"
               placeholder="List 3–5 trusted sources"
-              storageKey="section3:baseline"
-              navy={NAVY}
+              rows={4}
             />
           </div>
 
@@ -258,12 +291,11 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="3cs"
+            <Field
+              field="threeCs"
               label="Have a go yourself. If you’ve found something outside your trusted sources, run it through the 3Cs:"
               placeholder={`Check:\nCompare:\nConfirm:`}
-              storageKey="section3:3cs"
-              navy={NAVY}
+              rows={6}
             />
           </div>
 
@@ -307,12 +339,11 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="relevance"
+            <Field
+              field="relevance"
               label="Try it now with something you’ve read recently:"
               placeholder={`Plain words: …\nMatters now or later: …\nAction: …`}
-              storageKey="section3:relevance"
-              navy={NAVY}
+              rows={6}
             />
           </div>
 
@@ -351,12 +382,11 @@ export default function SectionThreePage() {
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="summary"
+            <Field
+              field="summary"
               label="Have a go now: write one thing you’ve learned recently, in your own words."
               placeholder="My summary…"
-              storageKey="section3:summary"
-              navy={NAVY}
+              rows={6}
             />
           </div>
 
@@ -394,7 +424,7 @@ export default function SectionThreePage() {
           </p>
           <div className="mt-6 flex justify-center">
             <Link
-              href="/Course/section-4"
+              href="/course/section-4"
               className="rounded-full px-6 py-3 font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
               style={{ backgroundColor: TEAL }}
             >

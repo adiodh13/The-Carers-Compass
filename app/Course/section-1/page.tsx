@@ -1,32 +1,78 @@
-// app/course/section-1/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+
+import { useAuth } from "@/components/useAuth";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
-import TextareaWithCount from "@/components/TextareaWithCount";
 import Collapse from "@/components/Collapse";
 import TechniqueCard from "@/components/TechniqueCard";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
+import AutoSaveTextarea from "@/components/AutoSaveTextarea";
 
+// ---- Theme
 const NAVY = "#2e3159";
 const TEAL = "#318484";
 
+// ---- Types
 type Milestones = {
   calmingTried: boolean;
   smallStepTaken: boolean;
 };
 
 export default function SectionOnePage() {
-  // Track milestones to nudge progress
+  const { user, loading } = useAuth();
+
+  // Public page; only saving is gated by sign-in
+  const docPath = useMemo(
+    () => (user ? `user_progress/${user.uid}/sections/section-1` : null),
+    [user]
+  );
+
+  // Helper to render either the saving textarea (signed-in) or a "Sign in to save" box (signed-out)
+  const Field = ({
+    field,
+    label,
+    placeholder,
+    rows = 6,
+  }: {
+    field: string;
+    label: string;
+    placeholder?: string;
+    rows?: number;
+  }) => {
+    if (!docPath) {
+      return (
+        <div className="w-full">
+          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
+            {label}
+          </label>
+          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
+            {loading ? "Loading…" : "Sign in to save"}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <AutoSaveTextarea
+        key={`${docPath}:${field}`} // reset on user change
+        docPath={docPath}
+        field={field}
+        label={label}
+        placeholder={placeholder}
+        rows={rows}
+      />
+    );
+  };
+
+  // Local milestone state (kept in localStorage)
   const [milestones, setMilestones] = useState<Milestones>({
     calmingTried: false,
     smallStepTaken: false,
   });
 
-  // Persist milestone state (simple localStorage)
   useEffect(() => {
     try {
       const raw = localStorage.getItem("section1:milestones");
@@ -42,12 +88,10 @@ export default function SectionOnePage() {
   // Scroll progress
   const pageRef = useRef<HTMLDivElement | null>(null);
   const [scrollPct, setScrollPct] = useState(0);
-
   useEffect(() => {
     const onScroll = () => {
       if (!pageRef.current) return;
-      const total =
-        pageRef.current.scrollHeight - window.innerHeight;
+      const total = pageRef.current.scrollHeight - window.innerHeight;
       const scrolled = Math.min(Math.max(window.scrollY, 0), total);
       const pct = total > 0 ? (scrolled / total) * 100 : 0;
       setScrollPct(pct);
@@ -61,14 +105,13 @@ export default function SectionOnePage() {
     };
   }, []);
 
-  // Each milestone adds a small bonus
+  // Derived UI values
   const bonusPct = useMemo(() => {
     let bonus = 0;
     if (milestones.calmingTried) bonus += 7.5;
     if (milestones.smallStepTaken) bonus += 7.5;
     return bonus;
   }, [milestones]);
-
   const effectiveProgress = Math.min(100, Math.max(scrollPct, bonusPct));
 
   // Calming techniques collapse state
@@ -77,13 +120,16 @@ export default function SectionOnePage() {
   return (
     <div
       ref={pageRef}
-      style={{ backgroundColor: "rgba(236, 245, 243, 0.5)" }} // off-white with soft teal tint
+      style={{ backgroundColor: "rgba(236, 245, 243, 0.5)" }}
       className="min-h-screen"
     >
-      {/* --- STICKY PROGRESS HEADER (always visible) --- */}
+      {/* --- STICKY PROGRESS HEADER --- */}
       <div className="sticky top-0 z-40 border-b border-black/5 bg-[rgba(236,245,243,0.8)] backdrop-blur">
         <div className="mx-auto w-full max-w-3xl px-6 py-3 md:px-8">
-          <div className="mb-1 flex items-center justify-between text-xs md:text-sm" style={{ color: NAVY }}>
+          <div
+            className="mb-1 flex items-center justify-between text-xs md:text-sm"
+            style={{ color: NAVY }}
+          >
             <span className="font-medium">Section 1 of 5</span>
             <span aria-live="polite">{Math.round(effectiveProgress)}%</span>
           </div>
@@ -119,7 +165,6 @@ export default function SectionOnePage() {
           {/* Grounding Exercise Card */}
           <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
             <div className="flex items-start gap-5">
-              {/* Animated breathing circle */}
               <div className="hidden h-16 w-16 flex-none animate-breathe rounded-full bg-[rgba(49,132,132,0.15)] md:block" />
               <div className="flex-1">
                 <h3 className="text-lg font-semibold" style={{ color: NAVY }}>
@@ -148,50 +193,38 @@ export default function SectionOnePage() {
             natural to you.
           </p>
 
-          {/* Reflection Prompts - Two collapsible groups */}
+          {/* Reflection Prompts */}
           <div className="mt-6 space-y-6">
             <Collapse title="Questions, worries and emotions">
               <div className="space-y-5">
-                <TextareaWithCount
-                  id="q1"
+                <Field
+                  field="q1"
                   label="What questions do I have right now?"
-                  storageKey="section1:q1"
-                  navy={NAVY}
                 />
-                <TextareaWithCount
-                  id="q2"
+                <Field
+                  field="q2"
                   label="What is worrying me the most at this moment?"
-                  storageKey="section1:q2"
-                  navy={NAVY}
                 />
-                <TextareaWithCount
-                  id="q3"
+                <Field
+                  field="emotions"
                   label="What emotions am I feeling?"
-                  storageKey="section1:q3"
-                  navy={NAVY}
                 />
               </div>
             </Collapse>
 
             <Collapse title="Stray thoughts, talking to someone and Next steps">
               <div className="space-y-5">
-                <TextareaWithCount
-                  id="q4"
+                <Field
+                  field="strayThoughts"
                   label="Are there any stray thoughts worth noting down, even if they seem small or random?"
-                  storageKey="section1:q4"
-                  navy={NAVY}
                 />
-                <TextareaWithCount
-                  id="q5"
+                <Field
+                  field="talkToSomeone"
                   label="Do I want to talk to someone (professional or otherwise)? What would I like to say?"
-                  storageKey="section1:q5"
-                  navy={NAVY}
                 />
-                <TextareaWithCount
-                  id="q6"
+                <Field
+                  field="nextSteps"
                   label="Were we told or recommended to do anything next?"
-                  storageKey="section1:q6"
-                  navy={NAVY}
                 />
               </div>
             </Collapse>
@@ -243,11 +276,9 @@ export default function SectionOnePage() {
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="reflect-anxiety"
+            <Field
+              field="anxietyReflection"
               label="Reflection first: When I feel anxious, what do I usually do?"
-              storageKey="section1:anxiety"
-              navy={NAVY}
             />
           </div>
 
@@ -264,7 +295,12 @@ export default function SectionOnePage() {
             <div className="mt-6 space-y-4">
               <TechniqueCard
                 title="Box Breathing (under 1 minute)"
-                steps={["Inhale through your nose for 4 seconds.", "Hold your breath for 4.", "Exhale through your mouth for 4.", "Pause for 4."]}
+                steps={[
+                  "Inhale through your nose for 4 seconds.",
+                  "Hold your breath for 4.",
+                  "Exhale through your mouth for 4.",
+                  "Pause for 4.",
+                ]}
                 subtext="Just 3 rounds can calm your body’s stress response."
                 navy={NAVY}
               />
@@ -324,29 +360,12 @@ export default function SectionOnePage() {
             back at your reflections. Choose 1–3 small, low-effort steps you could take today.
           </p>
 
-          {/* Examples mini-cards */}
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <MiniCard
-              title="Emotional"
-              icon="💬"
-              desc="Send a short text to a friend."
-              navy={NAVY}
-            />
-            <MiniCard
-              title="Practical"
-              icon="🗓️"
-              desc="Put tomorrow’s appointment letter in your bag."
-              navy={NAVY}
-            />
-            <MiniCard
-              title="Self-care"
-              icon="❤️"
-              desc="Drink a glass of water or step outside for fresh air."
-              navy={NAVY}
-            />
+            <MiniCard title="Emotional" icon="💬" desc="Send a short text to a friend." navy={NAVY} />
+            <MiniCard title="Practical" icon="🗓️" desc="Put tomorrow’s appointment letter in your bag." navy={NAVY} />
+            <MiniCard title="Self-care" icon="❤️" desc="Drink a glass of water or step outside for fresh air." navy={NAVY} />
           </div>
 
-          {/* Tip box */}
           <div className="mt-5 rounded-xl bg-[rgba(49,132,132,0.08)] p-4 ring-1 ring-[rgba(49,132,132,0.2)]">
             <p className="italic leading-relaxed" style={{ color: NAVY }}>
               Tip: Try turning one of your ideas into an “If–then” plan:
@@ -359,12 +378,10 @@ export default function SectionOnePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="small-steps"
+            <Field
+              field="smallSteps"
               label="Jot down 1 to 3 steps here. They don’t have to be perfect:"
               placeholder="Write your small steps here…"
-              storageKey="section1:smallsteps"
-              navy={NAVY}
             />
           </div>
 
@@ -388,19 +405,16 @@ export default function SectionOnePage() {
           </label>
         </SectionBlock>
 
-        {/* Closing Section — the ONLY place the Section 2 CTA appears */}
+        {/* Closing Section */}
         <SectionBlock>
           <p className="mx-auto max-w-[650px] text-center leading-relaxed" style={{ color: NAVY }}>
             You’ve just done some of the hardest work: pausing, calming, and starting to sort
             through the noise. This isn’t about fixing everything today. It’s about building a
             steady foundation for what comes next.
-            <br />
-            <br />
-            When you’re ready, move on to Section 2.
           </p>
           <div className="mt-6 flex justify-center">
             <Link
-              href="/Course/section-2"
+              href="/course/section-2"
               className="rounded-full px-6 py-3 font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
               style={{ backgroundColor: TEAL }}
             >

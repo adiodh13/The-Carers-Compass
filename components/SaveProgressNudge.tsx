@@ -1,5 +1,5 @@
 "use client";
-import { useCurrentUser } from "@/components/auth";
+import { useCurrentUser } from "@/components/AuthProvider";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function SaveProgressNudge() {

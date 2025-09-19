@@ -10,7 +10,7 @@ import Link from "next/link";
 function CTAButton({ className = "" }: { className?: string }) {
   return (
     <Link
-      href="/Course/how-to-use"
+      href="/course/how-to-use"
       className={
         "inline-flex items-center justify-center rounded-pill bg-brand-teal text-white px-8 py-5 text-[20px] md:text-[28px] font-semibold shadow-pill hover:opacity-95 active:translate-y-[1px] transition " +
         className
@@ -29,7 +29,7 @@ export default function Page() {
         <Container>
           <div>
             <h1 className="max-w-[22ch] text-[34px] leading-[1.2] md:text-[45px] font-bold mb-6">
-              You don’t have to
+              You don’t have to{"\u00A0"}
               <br className="hidden md:block" />
               figure this out alone.
             </h1>
@@ -103,7 +103,7 @@ export default function Page() {
   );
 }
 
-/* smaller components (unchanged except centering) */
+/* smaller components */
 function Benefit({ icon, title, blurb }: { icon: React.ReactNode; title: string; blurb: string }) {
   return (
     <div className="flex flex-col items-center text-center gap-4">
@@ -115,23 +115,69 @@ function Benefit({ icon, title, blurb }: { icon: React.ReactNode; title: string;
 }
 
 function FAQ() {
-  const items = [
-    "I’ve just found out my loved one’s diagnosis. Where do I start?",
-    "I’m already overwhelmed. Will this make things worse?",
-    "What if my loved one’s situation is different?",
-    "How much time will this take? I already feel stretched.",
-    "What if I don’t finish the guide?",
-  ];
   const [open, setOpen] = useState<number | null>(null);
+
+  const items: { q: string; a: React.ReactNode }[] = [
+    {
+      q: "I’ve just found out my loved one’s diagnosis. Where do I start?",
+      a: (
+        <>
+          We have designed this guide so that you can walk through it following your loved one's diagnosis.
+          The first section will help you take the intial steps to start processing your thoughts and sets you up
+          to learn more in the following sections.
+        </>
+      ),
+    },
+    {
+      q: "I’m already overwhelmed. Will this make things worse?",
+      a: (
+        <>
+          No. The guide is deliberately short and gentle. Each task is bite-sized,
+          you can pause anytime, and you’ll never be forced to do everything at once.
+          Our focus is to help you starting taking steps in the right direction.
+        </>
+      ),
+    },
+    {
+      q: "What if my loved one’s situation is different?",
+      a: (
+        <>
+          We focus on principles that apply across
+          diagnoses (communication, admin, support, questions for clinicians), then point you to
+          specialist info. You’ll learn the <em>right questions to ask</em> for your specific case.
+        </>
+      ),
+    },
+    {
+      q: "How much time will this take? I already feel stretched.",
+      a: (
+        <>
+          Most people complete the essentials in <strong>45–60 minutes</strong> across a few short
+          sessions. Each step is 5–10 minutes. That said, there is no time requirement and you can go 
+          through it at you're own pace.
+        </>
+      ),
+    },
+    {
+      q: "What if I don’t finish the guide?",
+      a: (
+        <>
+          That’s okay. Even one section can help. When you’re signed in, your notes
+          can be saved so you can pick up exactly where you left off.
+        </>
+      ),
+    },
+  ];
+
   return (
     <ul className="flex flex-col gap-5">
-      {items.map((q, i) => (
+      {items.map((item, i) => (
         <li key={i}>
           <button
             onClick={() => setOpen(open === i ? null : i)}
             className="w-full text-left rounded-pill bg-brand-teal/10 hover:bg-brand-teal/15 transition px-6 md:px-8 py-5 md:py-6 text-[18px] md:text-[22px] flex items-center justify-between gap-6"
           >
-            <span className="pr-4">{q}</span>
+            <span className="pr-4">{item.q}</span>
             <span
               className={
                 "shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-brand-teal transition-transform " +
@@ -142,11 +188,15 @@ function FAQ() {
               ➜
             </span>
           </button>
-          <div className={"grid transition-[grid-template-rows] duration-500 ease-gentle " + (open === i ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
+          <div
+            className={
+              "grid transition-[grid-template-rows] duration-500 ease-gentle " +
+              (open === i ? "grid-rows-[1fr]" : "grid-rows-[0fr]")
+            }
+          >
             <div className="overflow-hidden">
               <div className="px-6 md:px-8 pt-3 pb-1 text-[16px] md:text-[18px] text-black/75">
-                This guide is designed to be gentle and practical. Start with the first module,
-                spend 10–15 minutes, and stop — progress beats perfection.
+                {item.a}
               </div>
             </div>
           </div>
@@ -158,12 +208,16 @@ function FAQ() {
 
 function Contact() {
   return (
-    <div id="contact" className="rounded-3xl border border-blue/10 p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
-      <div className="text-[28px] md:text-[40px] font-bold leading-tight">
-        We’re here to listen.
-      </div>
+    <div
+      id="contact"
+      className="rounded-3xl border border-blue/10 p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10"
+    >
+      <div className="text-[28px] md:text-[40px] font-bold leading-tight">We’re here to listen.</div>
       <div className="text-[18px] md:text-[24px]">
-        Email us at <a className="underline" href="mailto:thecarerscompass@gmail.com">thecarerscompass@gmail.com</a>
+        Email us at{" "}
+        <a className="underline" href="mailto:thecarerscompass@gmail.com">
+          thecarerscompass@gmail.com
+        </a>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Lora } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Container from "@/components/Container";
+import { AuthProvider } from "@/components/AuthProvider"; // 👈 import your auth.tsx
 
 const lora = Lora({
   subsets: ["latin"],
@@ -18,12 +19,15 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body className={lora.className}>
+ // ...
+return (
+  <html lang="en" suppressHydrationWarning>
+    <body className={lora.className} suppressHydrationWarning>
+      <AuthProvider>
         <Navbar />
         <Container>{children}</Container>
-      </body>
-    </html>
-  );
+      </AuthProvider>
+    </body>
+  </html>
+)
 }

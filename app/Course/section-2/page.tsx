@@ -5,10 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
-import TextareaWithCount from "@/components/TextareaWithCount";
-import Collapse from "@/components/Collapse";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
+import { useAuth } from "@/components/useAuth";
+import AutoSaveTextarea from "@/components/AutoSaveTextarea";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -22,6 +22,40 @@ type Milestones = {
 };
 
 export default function SectionTwoPage() {
+  const { user } = useAuth();
+  const docPath = user ? `user_progress/${user.uid}/sections/section-2` : null;
+
+  // Local helper: gates saving behind sign-in and standardises styling
+  const Field: React.FC<{
+    field: string;
+    label: string;
+    placeholder?: string;
+    rows?: number;
+  }> = ({ field, label, placeholder, rows = 6 }) => {
+    if (!docPath) {
+      return (
+        <div className="w-full">
+          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
+            {label}
+          </label>
+          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
+            Sign in to save
+          </div>
+        </div>
+      );
+    }
+    return (
+      <AutoSaveTextarea
+        key={`${docPath}:${field}`}
+        docPath={docPath}
+        field={field}
+        label={label}
+        placeholder={placeholder}
+        rows={rows}
+      />
+    );
+  };
+
   // ----- Milestones (nudge progress) -----
   const [milestones, setMilestones] = useState<Milestones>({
     knowContacts: false,
@@ -31,7 +65,7 @@ export default function SectionTwoPage() {
     hasSupport: false,
   });
 
-  // Load/persist to localStorage
+  // Load/persist to localStorage (milestones only)
   useEffect(() => {
     try {
       const raw = localStorage.getItem("section2:milestones");
@@ -79,25 +113,6 @@ export default function SectionTwoPage() {
 
   // ----- UI State -----
   const [showWhyHard, setShowWhyHard] = useState(false);
-
-  // Weekly review small persistence (day/time)
-  const [weeklyDay, setWeeklyDay] = useState("");
-  const [weeklyTime, setWeeklyTime] = useState("");
-
-  useEffect(() => {
-    try {
-      const d = localStorage.getItem("section2:weeklyDay");
-      const t = localStorage.getItem("section2:weeklyTime");
-      if (d) setWeeklyDay(d);
-      if (t) setWeeklyTime(t);
-    } catch {}
-  }, []);
-  useEffect(() => {
-    try {
-      localStorage.setItem("section2:weeklyDay", weeklyDay);
-      localStorage.setItem("section2:weeklyTime", weeklyTime);
-    } catch {}
-  }, [weeklyDay, weeklyTime]);
 
   return (
     <div
@@ -157,26 +172,15 @@ export default function SectionTwoPage() {
               desc="Translates medical info, explains next steps, helps you navigate hospital processes."
               navy={NAVY}
             />
-            <MiniCard
-              title="GP"
-              icon="🏥"
-              desc="Supports overall health and liaises with hospital teams."
-              navy={NAVY}
-            />
-            <MiniCard
-              title="Support Worker"
-              icon="🤝"
-              desc="Connects you with charities, benefits, and community help."
-              navy={NAVY}
-            />
+            <MiniCard title="GP" icon="🏥" desc="Supports overall health and liaises with hospital teams." navy={NAVY} />
+            <MiniCard title="Support Worker" icon="🤝" desc="Connects you with charities, benefits, and community help." navy={NAVY} />
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="contacts"
+            <Field
+              field="contacts"
               label="If you don’t already know their names or contact details, note them here (or somewhere you can easily find later):"
-              storageKey="section2:contacts"
-              navy={NAVY}
+              rows={6}
             />
           </div>
 
@@ -221,18 +225,10 @@ export default function SectionTwoPage() {
           {showWhyHard && (
             <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
               <ul className="list-disc space-y-2 pl-5" style={{ color: NAVY }}>
-                <li>
-                  <strong>Ego/pride</strong> – “I should already understand this.”
-                </li>
-                <li>
-                  <strong>Embarrassment</strong> – “I’ll look stupid or annoy them.”
-                </li>
-                <li>
-                  <strong>Overwhelm</strong> – “I’m too drained to think of what to say.”
-                </li>
-                <li>
-                  <strong>Power imbalance</strong> – “I feel intimidated by doctors or nurses.”
-                </li>
+                <li><strong>Ego/pride</strong> – “I should already understand this.”</li>
+                <li><strong>Embarrassment</strong> – “I’ll look stupid or annoy them.”</li>
+                <li><strong>Overwhelm</strong> – “I’m too drained to think of what to say.”</li>
+                <li><strong>Power imbalance</strong> – “I feel intimidated by doctors or nurses.”</li>
               </ul>
               <p className="mt-3 italic" style={{ color: NAVY }}>
                 There are no silly questions. Consultants and nurses expect to explain things
@@ -254,30 +250,25 @@ export default function SectionTwoPage() {
             <ol className="list-decimal space-y-2 pl-5" style={{ color: NAVY }}>
               <li>
                 <strong>Name</strong> the question → write it down or say it out loud.
-                <div className="mt-1 text-sm opacity-90">
-                  Example: “Can this medication cause drowsiness?”
-                </div>
+                <div className="mt-1 text-sm opacity-90">Example: “Can this medication cause drowsiness?”</div>
               </li>
               <li>
-                <strong>Notice</strong> the resistance → ask yourself: “What’s holding me back
-                from asking this?” (e.g. “I don’t want to look stupid.” / “The doctors are busy.”
-                / “I should already know this.”)
+                <strong>Notice</strong> the resistance → ask yourself: “What’s holding me back from asking this?”
+                (e.g. “I don’t want to look stupid.” / “The doctors are busy.” / “I should already know this.”)
               </li>
               <li>
                 <strong>Neutralise</strong> the resistance → reality check each thought
-                (e.g. “It’s part of their job to answer.” / “Better to clarify than risk a
-                mistake.” / “Nobody can know everything.”)
+                (e.g. “It’s part of their job to answer.” / “Better to clarify than risk a mistake.” / “Nobody can know everything.”)
               </li>
             </ol>
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <TextareaWithCount
-              id="3ns"
+            <Field
+              field="threeNs"
               label="Have a go at practising this now with one of your current questions:"
               placeholder={`Name:\nNotice:\nNeutralise:`}
-              storageKey="section2:3ns"
-              navy={NAVY}
+              rows={6}
             />
           </div>
 
@@ -290,9 +281,7 @@ export default function SectionTwoPage() {
                 boxShadow: milestones.use3Ns ? "inset 0 0 0 2px white" : "none",
               }}
               checked={milestones.use3Ns}
-              onChange={(e) =>
-                setMilestones((m) => ({ ...m, use3Ns: e.target.checked }))
-              }
+              onChange={(e) => setMilestones((m) => ({ ...m, use3Ns: e.target.checked }))}
               aria-label="I can use the 3 N’s to help me ask my questions."
             />
             <span className="text-[15px]" style={{ color: NAVY }}>
@@ -309,10 +298,7 @@ export default function SectionTwoPage() {
           <div className="mt-3 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
             <ul className="list-disc space-y-2 pl-5" style={{ color: NAVY }}>
               <li>Write your questions down in advance.</li>
-              <li>
-                Frame it as teamwork: “To support [loved one’s name] properly, I want to check
-                I’ve got this right…”
-              </li>
+              <li>Frame it as teamwork: “To support [loved one’s name] properly, I want to check I’ve got this right…”</li>
               <li>Use the repeat-back method: “So just to be clear, the next step is X?”</li>
               <li>Bring someone with you: a second set of ears can boost confidence.</li>
             </ul>
@@ -334,7 +320,7 @@ export default function SectionTwoPage() {
             <MiniCard title="Notes app" icon="📱" desc="Always with you; quick to update." navy={NAVY} />
           </div>
 
-          <div className="mt-5 rounded-xl bg-[rgba(49,132,132,0.08)] p-4 ring-1 ring-[rgba(49,132,132,0.2)]">
+          <div className="mt-5 rounded-xl bg[rgba(49,132,132,0.08)] p-4 ring-1 ring-[rgba(49,132,132,0.2)]">
             <p className="leading-relaxed italic" style={{ color: NAVY }}>
               Helpful resource (UK): Cancer Research UK offers a free treatment record booklet.
             </p>
@@ -358,9 +344,7 @@ export default function SectionTwoPage() {
                 boxShadow: milestones.chosenLog ? "inset 0 0 0 2px white" : "none",
               }}
               checked={milestones.chosenLog}
-              onChange={(e) =>
-                setMilestones((m) => ({ ...m, chosenLog: e.target.checked }))
-              }
+              onChange={(e) => setMilestones((m) => ({ ...m, chosenLog: e.target.checked }))}
               aria-label="I have chosen a way to keep track of things more easily."
             />
             <span className="text-[15px]" style={{ color: NAVY }}>
@@ -395,25 +379,17 @@ export default function SectionTwoPage() {
               What day/time will you use for your weekly review?
             </label>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <input
-                type="text"
-                inputMode="text"
-                placeholder="Day (e.g., Sunday)"
-                value={weeklyDay}
-                onChange={(e) => setWeeklyDay(e.target.value)}
-                className="rounded-xl bg-[#f7f8fb] p-4 outline-none ring-1 ring-black/10 focus:ring-2 focus:ring-black/20"
-                style={{ color: NAVY }}
-                aria-label="Weekly review day"
+              <Field
+                field="weeklyDay"
+                label="Day"
+                placeholder="e.g., Sunday"
+                rows={2}
               />
-              <input
-                type="text"
-                inputMode="text"
-                placeholder="Time (e.g., 6:30pm)"
-                value={weeklyTime}
-                onChange={(e) => setWeeklyTime(e.target.value)}
-                className="rounded-xl bg-[#f7f8fb] p-4 outline-none ring-1 ring-black/10 focus:ring-2 focus:ring-black/20"
-                style={{ color: NAVY }}
-                aria-label="Weekly review time"
+              <Field
+                field="weeklyTime"
+                label="Time"
+                placeholder="e.g., 6:30pm"
+                rows={2}
               />
             </div>
           </div>
@@ -500,7 +476,7 @@ export default function SectionTwoPage() {
           </p>
           <div className="mt-6 flex justify-center">
             <Link
-              href="/Course/section-3"
+              href="/course/section-3"
               className="rounded-full px-6 py-3 font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
               style={{ backgroundColor: TEAL }}
             >
