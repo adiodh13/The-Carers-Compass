@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "../components/Navbar";
 import Container from "../components/Container";
 import FadeIn from "../components/FadeIn";
 import { AnchorIcon, CompassIcon, HandsIcon } from "../components/Icons";
