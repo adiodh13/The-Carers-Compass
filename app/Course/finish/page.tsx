@@ -3,7 +3,14 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+  addDoc,
+  collection,
+} from "firebase/firestore";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -77,29 +84,21 @@ export default function FinishPage() {
 
     setSubmitting(true);
     try {
-      // 2) POST the payload to our server API — this writes to feedback_submissions
-      const res = await fetch("/api/submitFeedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: user.uid,
-          email: user.email ?? null,
-          rating,
-          ratingComment,
-          helpedMost,
-          couldBeBetter,
-          confidence,
-          confidenceText,
-          otherFeedback,
-          subscribe,
-          subscribeEmail: subscribe ? emailTrimmed : null,
-        }),
+      // 2) Write the feedback directly to Firestore (simple and reliable)
+      await addDoc(collection(db, "feedback_submissions"), {
+        uid: user.uid,
+        userEmail: user.email ?? null,
+        rating,
+        ratingComment,
+        helpedMost,
+        couldBeBetter,
+        confidence: confidence ?? null,
+        confidenceText,
+        otherFeedback,
+        subscribe,
+        subscribeEmail: subscribe ? emailTrimmed : null,
+        createdAt: serverTimestamp(), // aligns with the rule requiring server time
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Failed to submit feedback.");
-      }
 
       // 3) Mark user's flag so they never see the form again
       const flagsRef = doc(db, "user_progress", user.uid, "flags", "flags");
@@ -112,6 +111,10 @@ export default function FinishPage() {
       // 4) Flip local UI state
       setHasSubmitted(true);
     } catch (err: any) {
+      // Common reasons this fails:
+      // - Firestore rules not published / too strict
+      // - No auth (user signed out in another tab)
+      // - Network offline
       setError(err?.message || "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
@@ -154,13 +157,10 @@ export default function FinishPage() {
           <h1 className="text-3xl font-semibold md:text-4xl" style={{ color: NAVY }}>
             Help Us Make The Carer’s Compass Even Better
           </h1>
-          <p className="mt-4 max-w-[650px]" style={{ color: NAVY }}>
-            You’ve reached the end of the guide — thank you for walking through it.
-          </p>
           <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
             <p className="leading-relaxed" style={{ color: NAVY }}>
               <em>
-                “Every carer’s voice helps shape this guide. Thank you for sharing yours — it will
+                “Thank you for sharing your thoughts. Every carer’s voice helps shape this guide and yours will
                 make a difference for the next person who walks this path.”
               </em>
             </p>

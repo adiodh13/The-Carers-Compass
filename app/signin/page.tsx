@@ -101,7 +101,7 @@ export default function SignInPage() {
     setBusy(true);
     try {
       await sendPasswordResetEmail(auth, email.trim());
-      setErr("Reset link sent (check your inbox).");
+      setErr("Reset link sent (check your inbox, Spam, or Promotions).");
     } catch (e: any) {
       setErr(humanError(e));
     } finally {
@@ -201,7 +201,10 @@ export default function SignInPage() {
           </div>
 
           {err ? (
-            <p className="text-sm" style={{ color: err.startsWith("Reset link") ? TEAL : "#b91c1c" }}>
+            <p
+              className="text-sm"
+              style={{ color: err.startsWith("Reset link") ? TEAL : "#b91c1c" }}
+            >
               {err}
             </p>
           ) : null}
@@ -219,26 +222,33 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <button
-            type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="text-sm font-medium underline underline-offset-4"
-            style={{ color: NAVY }}
-          >
-            {mode === "signin"
-              ? "No account? Create one"
-              : "Have an account? Sign in"}
-          </button>
+        <div className="mt-4 flex flex-col gap-2 text-sm">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              className="text-sm font-medium underline underline-offset-4"
+              style={{ color: NAVY }}
+            >
+              {mode === "signin"
+                ? "No account? Create one"
+                : "Have an account? Sign in"}
+            </button>
 
-          <button
-            type="button"
-            onClick={onForgot}
-            className="text-sm underline underline-offset-4"
-            style={{ color: NAVY }}
-          >
-            Forgot password?
-          </button>
+            <button
+              type="button"
+              onClick={onForgot}
+              className="text-sm underline underline-offset-4"
+              style={{ color: NAVY }}
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {/* Warning about spam/promotions */}
+          <p className="text-xs text-gray-500 mt-1">
+            If you request a reset link, please also check your Spam or Promotions folder.
+          </p>
         </div>
       </div>
     </div>
@@ -254,10 +264,22 @@ function GoogleIcon() {
       viewBox="0 0 533.5 544.3"
       className="inline-block"
     >
-      <path fill="#ea4335" d="M533.5 278.4c0-18.6-1.5-37-4.7-54.8H272.1v103.8h146.9c-6.3 34-25.3 62.7-54 82v68.2h87.4c51.1-47 80.1-116.2 80.1-199.2z"/>
-      <path fill="#34a853" d="M272.1 544.3c72.9 0 134.2-24.1 178.9-65.6l-87.4-68.2c-24.3 16.3-55.3 26.1-91.5 26.1-70.3 0-129.9-47.5-151.3-111.3H31.6v69.9c44.4 88 135.9 148.9 240.5 148.9z"/>
-      <path fill="#4a90e2" d="M120.8 325.2c-10.2-30.3-10.2-63 0-93.3V162H31.6c-43.2 86.5-43.2 189.7 0 276.2l89.2-69z"/>
-      <path fill="#fbbc05" d="M272.1 106.2c39.6-.6 77.7 14.2 106.7 41.4l79.8-79.8C407.9 24.8 343 0 272.1 0 167.5 0 76 60.9 31.6 148.9l89.2 69c21.5-63.7 81-111.3 151.3-111.7z"/>
+      <path
+        fill="#ea4335"
+        d="M533.5 278.4c0-18.6-1.5-37-4.7-54.8H272.1v103.8h146.9c-6.3 34-25.3 62.7-54 82v68.2h87.4c51.1-47 80.1-116.2 80.1-199.2z"
+      />
+      <path
+        fill="#34a853"
+        d="M272.1 544.3c72.9 0 134.2-24.1 178.9-65.6l-87.4-68.2c-24.3 16.3-55.3 26.1-91.5 26.1-70.3 0-129.9-47.5-151.3-111.3H31.6v69.9c44.4 88 135.9 148.9 240.5 148.9z"
+      />
+      <path
+        fill="#4a90e2"
+        d="M120.8 325.2c-10.2-30.3-10.2-63 0-93.3V162H31.6c-43.2 86.5-43.2 189.7 0 276.2l89.2-69z"
+      />
+      <path
+        fill="#fbbc05"
+        d="M272.1 106.2c39.6-.6 77.7 14.2 106.7 41.4l79.8-79.8C407.9 24.8 343 0 272.1 0 167.5 0 76 60.9 31.6 148.9l89.2 69c21.5-63.7 81-111.3 151.3-111.7z"
+      />
     </svg>
   );
 }
@@ -276,7 +298,6 @@ function SkeletonCard() {
 function humanError(err: unknown) {
   if (typeof err === "string") return err;
   if (err && typeof err === "object" && "message" in err) {
-    
     const msg = String(err.message || "");
     // Surface Firebase Auth codes more cleanly
     // @ts-expect-error

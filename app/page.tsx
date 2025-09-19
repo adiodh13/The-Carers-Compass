@@ -212,11 +212,11 @@ function Contact() {
       id="contact"
       className="rounded-3xl border border-blue/10 p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10"
     >
-      <div className="text-[28px] md:text-[40px] font-bold leading-tight">We’re here to listen.</div>
+      <div className="text-[28px] md:text-[40px] font-bold leading-tight">We’re always open to feedback.</div>
       <div className="text-[18px] md:text-[24px]">
         Email us at{" "}
         <a className="underline" href="mailto:thecarerscompass@gmail.com">
-          thecarerscompass@gmail.com
+          team@thecarerscompass.com
         </a>
       </div>
     </div>
