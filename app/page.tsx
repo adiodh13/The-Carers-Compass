@@ -120,20 +120,20 @@ function FAQ() {
     {
       q: "I’ve just found out my loved one’s diagnosis. Where do I start?",
       a: (
-        <>
-          {"We have designed this guide so that you can walk through it following your loved one's diagnosis.
-          The first section will help you take the intial steps to start processing your thoughts and sets you up
-          to learn more in the following sections."} 
-        </>
+        <span className="whitespace-pre-line">
+          {`We have designed this guide so that you can walk through it following your loved one's diagnosis.
+The first section will help you take the initial steps to start processing your thoughts and sets you up
+to learn more in the following sections.`}
+        </span>
       ),
     },
     {
       q: "I’m already overwhelmed. Will this make things worse?",
       a: (
         <>
-          No. The guide is deliberately short and gentle. Each task is bite-sized,
-          you can pause anytime, and you’ll never be forced to do everything at once.
-          Our focus is to help you starting taking steps in the right direction.
+          No. The guide is deliberately short and gentle. Each task is bite-sized, you can pause anytime,
+          and you’ll never be forced to do everything at once. Our focus is to help you start taking steps
+          in the right direction.
         </>
       ),
     },
@@ -141,9 +141,9 @@ function FAQ() {
       q: "What if my loved one’s situation is different?",
       a: (
         <>
-          We focus on principles that apply across
-          diagnoses (communication, admin, support, questions for clinicians), then point you to
-          specialist info. You’ll learn the <em>right questions to ask</em> for your specific case.
+          We focus on principles that apply across diagnoses (communication, admin, support, questions for
+          clinicians), then point you to specialist info. You’ll learn the <em>right questions to ask</em> for
+          your specific case.
         </>
       ),
     },
@@ -151,9 +151,9 @@ function FAQ() {
       q: "How much time will this take? I already feel stretched.",
       a: (
         <>
-          {"Most people complete the essentials in <strong>45–60 minutes</strong> across a few short
-          sessions. Each step is 5–10 minutes. That said, there is no time requirement and you can go 
-          through it at you're own pace."}
+          Most people complete the essentials in <strong>45–60 minutes</strong> across a few short sessions.
+          Each step is 5–10 minutes. That said, there is no time requirement and you can go through it at your
+          own pace.
         </>
       ),
     },
@@ -161,8 +161,8 @@ function FAQ() {
       q: "What if I don’t finish the guide?",
       a: (
         <>
-          That’s okay. Even one section can help. When you’re signed in, your notes
-          can be saved so you can pick up exactly where you left off.
+          That’s okay. Even one section can help. When you’re signed in, your notes can be saved so you can
+          pick up exactly where you left off.
         </>
       ),
     },
@@ -214,7 +214,7 @@ function Contact() {
       <div className="text-[28px] md:text-[40px] font-bold leading-tight">We’re always open to feedback.</div>
       <div className="text-[18px] md:text-[24px]">
         Email us at{" "}
-        <a className="underline" href="mailto:thecarerscompass@gmail.com">
+        <a className="underline" href="mailto:team@thecarerscompass.com">
           team@thecarerscompass.com
         </a>
       </div>
