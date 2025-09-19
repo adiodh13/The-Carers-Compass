@@ -122,9 +122,9 @@ function FAQ() {
       q: "I’ve just found out my loved one’s diagnosis. Where do I start?",
       a: (
         <>
-          We have designed this guide so that you can walk through it following your loved one's diagnosis.
+          {"We have designed this guide so that you can walk through it following your loved one's diagnosis.
           The first section will help you take the intial steps to start processing your thoughts and sets you up
-          to learn more in the following sections.
+          to learn more in the following sections."} 
         </>
       ),
     },
@@ -152,9 +152,9 @@ function FAQ() {
       q: "How much time will this take? I already feel stretched.",
       a: (
         <>
-          Most people complete the essentials in <strong>45–60 minutes</strong> across a few short
+          {"Most people complete the essentials in <strong>45–60 minutes</strong> across a few short
           sessions. Each step is 5–10 minutes. That said, there is no time requirement and you can go 
-          through it at you're own pace.
+          through it at you're own pace."}
         </>
       ),
     },
