@@ -1,3 +1,4 @@
+// components/FadeIn.tsx
 "use client";
 
 import { useEffect, useRef, useState, type ElementType } from "react";
@@ -20,7 +21,7 @@ export default function FadeIn({
   // Default to 'section' but allow any valid element or component
   const Component = (as || "section") as ElementType;
 
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function FadeIn({
 
   return (
     <Component
-      ref={ref as any}
+      ref={ref}
       className={clsx(
         "transition-all duration-700 ease-gentle will-change-[transform,opacity]",
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",

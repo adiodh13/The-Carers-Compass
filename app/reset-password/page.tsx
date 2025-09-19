@@ -14,28 +14,34 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email) return alert("Please enter your email.");
+  e.preventDefault();
+  if (!email) return alert("Please enter your email.");
 
-    try {
-      setLoading(true);
-      await sendPasswordResetEmail(auth, email);
-      setMessage(
-        "If this email is registered, a password reset link has been sent."
-      );
-    } catch (err: any) {
-      console.error(err);
-      if (err?.code === "auth/invalid-email") {
+  try {
+    setLoading(true);
+    await sendPasswordResetEmail(auth, email);
+    setMessage(
+      "If this email is registered, a password reset link has been sent."
+    );
+  } catch (err: unknown) {
+    console.error(err);
+    if (typeof err === "object" && err !== null && "code" in err) {
+      const code = (err as { code?: string }).code;
+      if (code === "auth/invalid-email") {
         setMessage("That email address looks invalid.");
-      } else if (err?.code === "auth/user-not-found") {
+      } else if (code === "auth/user-not-found") {
         setMessage("No account found with that email.");
       } else {
         setMessage("Something went wrong. Please try again.");
       }
-    } finally {
-      setLoading(false);
+    } else {
+      setMessage("Something went wrong. Please try again.");
     }
+  } finally {
+    setLoading(false);
   }
+}
+
 
   return (
     <main className="min-h-[70vh] grid place-items-center p-6">

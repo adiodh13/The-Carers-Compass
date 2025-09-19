@@ -59,11 +59,15 @@ export default function SignInPage() {
       }
       await signInWithPopup(auth, googleProvider);
       router.push(redirectTo);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // ignore benign popup race/close errors
+      const code =
+        typeof e === "object" && e && "code" in e && typeof (e as any).code === "string"
+          ? (e as any).code
+          : "";
       if (
-        e?.code !== "auth/cancelled-popup-request" &&
-        e?.code !== "auth/popup-closed-by-user"
+        code !== "auth/cancelled-popup-request" &&
+        code !== "auth/popup-closed-by-user"
       ) {
         setErr(humanError(e));
       }
@@ -85,7 +89,7 @@ export default function SignInPage() {
         await createUserWithEmailAndPassword(auth, email.trim(), pw);
       }
       router.push(redirectTo);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setErr(humanError(e));
     } finally {
       setBusy(false);
@@ -102,7 +106,7 @@ export default function SignInPage() {
     try {
       await sendPasswordResetEmail(auth, email.trim());
       setErr("Reset link sent (check your inbox, Spam, or Promotions).");
-    } catch (e: any) {
+    } catch (e: unknown) {
       setErr(humanError(e));
     } finally {
       setBusy(false);
@@ -297,14 +301,17 @@ function SkeletonCard() {
 
 function humanError(err: unknown) {
   if (typeof err === "string") return err;
-  if (err && typeof err === "object" && "message" in err) {
-    const msg = String(err.message || "");
-    // Surface Firebase Auth codes more cleanly
-    // @ts-expect-error
-    const code = err.code ? String(err.code) : "";
-    if (code) return `${msg.replace(/^Firebase:\s*/i, "")} (${code})`;
-    return msg || "Something went wrong";
+
+  if (err && typeof err === "object") {
+    const maybe = err as { message?: unknown; code?: unknown };
+    const msg =
+      typeof maybe.message === "string" ? maybe.message : "Something went wrong";
+    const code = typeof maybe.code === "string" ? maybe.code : "";
+
+    const cleanMsg = msg.replace(/^Firebase:\s*/i, "");
+    return code ? `${cleanMsg} (${code})` : cleanMsg;
   }
+
   try {
     return JSON.stringify(err);
   } catch {

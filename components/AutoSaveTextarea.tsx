@@ -1,7 +1,7 @@
 // components/AutoSaveTextarea.tsx
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -30,29 +30,28 @@ export default function AutoSaveTextarea({
   const [status, setStatus] = useState<SaveState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const mounted = useRef(false);
-
   // Load once on mount (or when docPath/field changes via key at call site)
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const snap = await getDoc(doc(db, docPath));
-        const initial = snap.exists() ? (snap.data()?.[field] ?? "") : "";
+        const data = snap.exists() ? snap.data() : undefined;
+        const initial = typeof data?.[field] === "string" ? (data![field] as string) : "";
         if (!cancelled) {
-          setValue(typeof initial === "string" ? initial : "");
+          setValue(initial);
           setDirty(false);
           setStatus("idle"); // Do NOT show "Saved" on initial load
           setErrorMsg(null);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setErrorMsg(err?.message ?? "Failed to load");
+          const msg = err instanceof Error ? err.message : "Failed to load";
+          setErrorMsg(msg);
           setStatus("error");
         }
       }
     })();
-    mounted.current = true;
     return () => {
       cancelled = true;
     };
@@ -72,9 +71,10 @@ export default function AutoSaveTextarea({
       );
       setDirty(false);
       setStatus("saved");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save";
       setStatus("error");
-      setErrorMsg(err?.message ?? "Failed to save");
+      setErrorMsg(msg);
     }
   }, [dirty, field, value, docPath, status]);
 
@@ -89,9 +89,7 @@ export default function AutoSaveTextarea({
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
     setDirty(true);
-    // If it was showing "saved", hide it as soon as the user edits
-    if (status === "saved") setStatus("idle");
-    if (status === "error") setStatus("idle");
+    if (status === "saved" || status === "error") setStatus("idle");
   };
 
   // Keyboard: Cmd/Ctrl+S to save
@@ -102,7 +100,7 @@ export default function AutoSaveTextarea({
     }
   };
 
-  const showSaved = status === "saved" && !dirty; // <— only after successful save AND not currently editing
+  const showSaved = status === "saved" && !dirty;
   const showSaving = status === "saving";
   const showError = status === "error";
 

@@ -109,16 +109,20 @@ export default function FinishPage() {
       );
 
       // 4) Flip local UI state
-      setHasSubmitted(true);
-    } catch (err: any) {
-      // Common reasons this fails:
-      // - Firestore rules not published / too strict
-      // - No auth (user signed out in another tab)
-      // - Network offline
-      setError(err?.message || "Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+setHasSubmitted(true);
+} catch (err: unknown) {
+  // Common reasons this fails:
+  // - Firestore rules not published / too strict
+  // - No auth (user signed out in another tab)
+  // - Network offline
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Something went wrong. Please try again.");
+  }
+} finally {
+  setSubmitting(false);
+}
   }
 
   // --- UI ---
