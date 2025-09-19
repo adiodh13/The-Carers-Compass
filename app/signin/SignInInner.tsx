@@ -17,8 +17,6 @@ const NAVY = "#2e3159";
 const TEAL = "#318484";
 
 type Mode = "signin" | "signup";
-
-// --- New: UI-friendly error shape ---
 type UIAuthError = { code?: string; msg: string };
 
 export default function SignInInner() {
@@ -31,7 +29,6 @@ export default function SignInInner() {
 
   const { user, loading } = useAuth();
 
-  // If already signed in, bounce to target
   useEffect(() => {
     if (!loading && user) {
       router.replace(redirectTo);
@@ -43,38 +40,48 @@ export default function SignInInner() {
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
-  // --- Changed: hold structured error instead of string ---
   const [err, setErr] = useState<UIAuthError | null>(null);
 
-  const clickingRef = useRef(false); // prevent duplicate Google popups
+  const clickingRef = useRef(false); // prevent duplicate Google clicks
 
-  const isMobileSafari = () =>
-    typeof navigator !== "undefined" &&
-    /Safari/.test(navigator.userAgent) &&
-    /Mobile|iPhone|iPad|iPod/.test(navigator.userAgent);
+  // Broad mobile detection (covers iOS Safari + Android Chrome)
+  const isMobileBrowser = () =>
+    typeof navigator !== "undefined" && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const onGoogle = async () => {
     if (busy || clickingRef.current) return;
     setErr(null);
     setBusy(true);
     clickingRef.current = true;
+
     try {
-      if (isMobileSafari()) {
+      // Prefer redirect on mobile (popups are unreliable there)
+      if (isMobileBrowser()) {
         await signInWithRedirect(auth, googleProvider);
-        return; // redirect flow continues after provider returns to app
+        return; // after redirect back, auth state listener will fire
       }
+
+      // Desktop: try popup first
       await signInWithPopup(auth, googleProvider);
       router.push(redirectTo);
-    } catch (e: unknown) {
-      // ignore benign popup race/close errors
-      const code =
-        typeof e === "object" && e && "code" in e && typeof (e as any).code === "string"
-          ? (e as any).code
-          : "";
-      if (
-        code !== "auth/cancelled-popup-request" &&
-        code !== "auth/popup-closed-by-user"
-      ) {
+    } catch (e: any) {
+      const code: string | undefined = typeof e?.code === "string" ? e.code : undefined;
+
+      // If popup failed/blocked/unsupported → fall back to redirect (works on most envs)
+      const shouldFallback =
+        code === "auth/popup-blocked" ||
+        code === "auth/popup-closed-by-user" ||
+        code === "auth/cancelled-popup-request" ||
+        code === "auth/operation-not-supported-in-this-environment";
+
+      if (shouldFallback) {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (inner) {
+          setErr(prettyAuthError(inner, "signin"));
+        }
+      } else {
         setErr(prettyAuthError(e, "signin"));
       }
     } finally {
@@ -122,7 +129,6 @@ export default function SignInInner() {
     }
   };
 
-  // While auth state loads, show a small placeholder
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16">
@@ -131,7 +137,6 @@ export default function SignInInner() {
     );
   }
 
-  // If already signed in, we’re already redirecting; show nothing
   if (user) return null;
 
   return (
@@ -213,7 +218,6 @@ export default function SignInInner() {
             </div>
           </div>
 
-          {/* --- New: styled, friendly notice --- */}
           {err && (
             <div
               role="alert"
@@ -280,7 +284,6 @@ export default function SignInInner() {
             </button>
           </div>
 
-          {/* Warning about spam/promotions */}
           <p className="text-xs text-gray-500 mt-1">
             If you request a reset link, please also check your Spam or Promotions folder.
           </p>
@@ -292,29 +295,11 @@ export default function SignInInner() {
 
 function GoogleIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      width="18"
-      height="18"
-      viewBox="0 0 533.5 544.3"
-      className="inline-block"
-    >
-      <path
-        fill="#ea4335"
-        d="M533.5 278.4c0-18.6-1.5-37-4.7-54.8H272.1v103.8h146.9c-6.3 34-25.3 62.7-54 82v68.2h87.4c51.1-47 80.1-116.2 80.1-199.2z"
-      />
-      <path
-        fill="#34a853"
-        d="M272.1 544.3c72.9 0 134.2-24.1 178.9-65.6l-87.4-68.2c-24.3 16.3-55.3 26.1-91.5 26.1-70.3 0-129.9-47.5-151.3-111.3H31.6v69.9c44.4 88 135.9 148.9 240.5 148.9z"
-      />
-      <path
-        fill="#4a90e2"
-        d="M120.8 325.2c-10.2-30.3-10.2-63 0-93.3V162H31.6c-43.2 86.5-43.2 189.7 0 276.2l89.2-69z"
-      />
-      <path
-        fill="#fbbc05"
-        d="M272.1 106.2c39.6-.6 77.7 14.2 106.7 41.4l79.8-79.8C407.9 24.8 343 0 272.1 0 167.5 0 76 60.9 31.6 148.9l89.2 69c21.5-63.7 81-111.3 151.3-111.7z"
-      />
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 533.5 544.3" className="inline-block">
+      <path fill="#ea4335" d="M533.5 278.4c0-18.6-1.5-37-4.7-54.8H272.1v103.8h146.9c-6.3 34-25.3 62.7-54 82v68.2h87.4c51.1-47 80.1-116.2 80.1-199.2z"/>
+      <path fill="#34a853" d="M272.1 544.3c72.9 0 134.2-24.1 178.9-65.6l-87.4-68.2c-24.3 16.3-55.3 26.1-91.5 26.1-70.3 0-129.9-47.5-151.3-111.3H31.6v69.9c44.4 88 135.9 148.9 240.5 148.9z"/>
+      <path fill="#4a90e2" d="M120.8 325.2c-10.2-30.3-10.2-63 0-93.3V162H31.6c-43.2 86.5-43.2 189.7 0 276.2l89.2-69z"/>
+      <path fill="#fbbc05" d="M272.1 106.2c39.6-.6 77.7 14.2 106.7 41.4l79.8-79.8C407.9 24.8 343 0 272.1 0 167.5 0 76 60.9 31.6 148.9l89.2 69c21.5-63.7 81-111.3 151.3-111.7z"/>
     </svg>
   );
 }
@@ -330,7 +315,7 @@ function SkeletonCard() {
   );
 }
 
-// --- New: map Firebase errors → friendly copy + styling ---
+// Map Firebase errors → friendly copy
 function prettyAuthError(err: unknown, mode: "signin" | "signup"): UIAuthError {
   let code = "";
   let raw = "";
@@ -343,13 +328,10 @@ function prettyAuthError(err: unknown, mode: "signin" | "signup"): UIAuthError {
     raw = err;
   }
 
-  // Strip Firebase boilerplate if present
   const cleaned =
-    (raw || "")
-      .replace(/^Firebase:\s*/i, "")
-      .replace(/\s*\(auth\/[^\)]+\)\s*$/i, "") || "Something went wrong";
+    (raw || "").replace(/^Firebase:\s*/i, "").replace(/\s*\(auth\/[^\)]+\)\s*$/i, "") ||
+    "Something went wrong";
 
-  // Friendly overrides for common cases
   if (mode === "signin" && (code === "auth/invalid-credential" || code === "auth/user-not-found")) {
     return { code, msg: "That email and password don’t match our records." };
   }
