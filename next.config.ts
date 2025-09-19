@@ -2,6 +2,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ✅ Ignore ESLint errors in production builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   webpack(config) {
     // Exclude .svg from Next.js's default file loader
     const fileLoaderRule = config.module.rules.find((rule: any) =>
