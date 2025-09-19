@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import type { FirebaseError } from "firebase/app";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -17,6 +18,38 @@ type Props = {
 };
 
 type SaveState = "idle" | "saving" | "saved" | "error";
+
+// Helpers
+function isOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
+function isNetworkError(err: unknown): boolean {
+  const fe = err as Partial<FirebaseError> | undefined;
+  const code = typeof fe?.code === "string" ? fe!.code : "";
+  const msg = typeof fe?.message === "string" ? fe!.message : "";
+
+  // Common network-ish cases
+  if (isOffline()) return true;
+  if (code === "unavailable" || code === "deadline-exceeded") return true;
+  if (/network|failed\-precondition/i.test(msg)) return true;
+
+  return false;
+}
+
+function humanizeLoadError(err: unknown): string {
+  if (isNetworkError(err)) return "Couldn’t load — check your connection.";
+  const fe = err as Partial<FirebaseError> | undefined;
+  if (fe?.code === "permission-denied") return "You don’t have permission to view this.";
+  return "Failed to load";
+}
+
+function humanizeSaveError(err: unknown): string {
+  if (isNetworkError(err)) return "Couldn’t save — check your connection.";
+  const fe = err as Partial<FirebaseError> | undefined;
+  if (fe?.code === "permission-denied") return "You don’t have permission to save.";
+  return "Failed to save";
+}
 
 export default function AutoSaveTextarea({
   docPath,
@@ -41,21 +74,32 @@ export default function AutoSaveTextarea({
         if (!cancelled) {
           setValue(initial);
           setDirty(false);
-          setStatus("idle"); // Do NOT show "Saved" on initial load
+          setStatus("idle"); // don’t show "Saved" on initial load
           setErrorMsg(null);
         }
       } catch (err: unknown) {
         if (!cancelled) {
-          const msg = err instanceof Error ? err.message : "Failed to load";
-          setErrorMsg(msg);
+          setErrorMsg(humanizeLoadError(err));
           setStatus("error");
         }
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [docPath, field]);
+
+  // Clear error automatically when the browser regains connectivity
+  useEffect(() => {
+    const onOnline = () => {
+      // clear error banner; do not auto-save to avoid surprises
+      setErrorMsg(null);
+      if (status === "error") setStatus("idle");
+    };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [status]);
 
   const save = useCallback(async () => {
     // Only attempt a save if there are changes to persist
@@ -72,9 +116,10 @@ export default function AutoSaveTextarea({
       setDirty(false);
       setStatus("saved");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save";
-      setStatus("error");
-      setErrorMsg(msg);
+      // IMPORTANT: stop spinner and show a friendly, actionable message
+      setStatus("error");           // stops "Saving…" state
+      setErrorMsg(humanizeSaveError(err));
+      // keep `dirty` as true so the Save button stays enabled for retry
     }
   }, [dirty, field, value, docPath, status]);
 
@@ -90,6 +135,7 @@ export default function AutoSaveTextarea({
     setValue(e.target.value);
     setDirty(true);
     if (status === "saved" || status === "error") setStatus("idle");
+    if (errorMsg) setErrorMsg(null);
   };
 
   // Keyboard: Cmd/Ctrl+S to save
@@ -134,6 +180,7 @@ export default function AutoSaveTextarea({
           e.currentTarget.style.borderColor = "rgba(46,49,89,0.2)";
         }}
         aria-label={label}
+        aria-invalid={showError ? true : undefined}
       />
 
       <div className="mt-2 flex items-center gap-3">
@@ -155,8 +202,11 @@ export default function AutoSaveTextarea({
           </span>
         )}
         {showError && (
-          <span className="text-sm text-red-600" role="alert">
+          <span className="text-sm text-red-600" role="alert" aria-live="assertive">
             {errorMsg ?? "Failed to save"}
+            {isOffline() && (
+              <span className="ml-2 opacity-80">(You appear to be offline)</span>
+            )}
           </span>
         )}
       </div>
