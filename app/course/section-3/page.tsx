@@ -7,8 +7,8 @@ import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
-import { useAuth } from "@/components/useAuth";
-import AutoSaveTextarea from "@/components/AutoSaveTextarea";
+import Prompt from "@/components/Prompt";
+import GuideActions from "@/components/GuideActions";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -22,39 +22,6 @@ type Milestones = {
 };
 
 export default function SectionThreePage() {
-  const { user } = useAuth();
-  const docPath = user ? `user_progress/${user.uid}/sections/section-3` : null;
-
-  // Local helper: gate saving behind sign-in and standardise styling
-  const Field: React.FC<{
-    field: string;
-    label: string;
-    placeholder?: string;
-    rows?: number;
-  }> = ({ field, label, placeholder, rows = 6 }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            Sign in to save
-          </div>
-        </div>
-      );
-    }
-    return (
-      <AutoSaveTextarea
-        key={`${docPath}:${field}`} // reset on user change
-        docPath={docPath}
-        field={field}
-        label={label}
-        placeholder={placeholder}
-        rows={rows}
-      />
-    );
-  };
 
   // ----- Milestones (for gentle progress nudges) -----
   const [milestones, setMilestones] = useState<Milestones>({
@@ -141,6 +108,7 @@ export default function SectionThreePage() {
             system, you can learn without exhausting yourself. This section shows you how to build knowledge in
             a way that supports your loved one’s care while keeping you steady.
           </p>
+          <GuideActions title="Section 3: Building Your Knowledge Base" />
         </SectionBlock>
 
         {/* Step 1: Pick your learning time */}
@@ -155,11 +123,9 @@ export default function SectionThreePage() {
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="times"
+            <Prompt
               label="When do you want your learning windows to be?"
-              placeholder="e.g. Tuesday evenings, Saturday mornings"
-              rows={4}
+              hint="e.g. Tuesday evenings, Saturday mornings"
             />
           </div>
 
@@ -227,11 +193,9 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="baseline"
+            <Prompt
               label="What are your trusted sources?"
-              placeholder="List 3–5 trusted sources"
-              rows={4}
+              hint="List 3–5 trusted sources"
             />
           </div>
 
@@ -291,11 +255,9 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="threeCs"
+            <Prompt
               label="Have a go yourself. If you’ve found something outside your trusted sources, run it through the 3Cs:"
-              placeholder={`Check:\nCompare:\nConfirm:`}
-              rows={6}
+              hint={`Check:\nCompare:\nConfirm:`}
             />
           </div>
 
@@ -339,11 +301,9 @@ export default function SectionThreePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="relevance"
+            <Prompt
               label="Try it now with something you’ve read recently:"
-              placeholder={`Plain words: …\nMatters now or later: …\nAction: …`}
-              rows={6}
+              hint={`Plain words: …\nMatters now or later: …\nAction: …`}
             />
           </div>
 
@@ -382,11 +342,9 @@ export default function SectionThreePage() {
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="summary"
+            <Prompt
               label="Have a go now: write one thing you’ve learned recently, in your own words."
-              placeholder="My summary…"
-              rows={6}
+              hint="My summary…"
             />
           </div>
 
@@ -417,7 +375,7 @@ export default function SectionThreePage() {
           <p className="mx-auto max-w-[650px] text-center leading-relaxed" style={{ color: NAVY }}>
             You now have a system to learn without burning out:
             <br />
-            Set clear times for learning • Rely on trusted sources • Use the 3Cs • Keep it relevant • Summarise
+            Set clear times for learning, rely on trusted sources, use the 3Cs, keep it relevant, and summarise.
             <br />
             This isn’t about knowing everything at once—it’s about steadily building the knowledge you need, when you need it.
             You can be confident that you’ll always have a way to find and make sense of the right information.

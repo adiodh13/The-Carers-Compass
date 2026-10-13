@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
-import { useAuth } from "@/components/useAuth";
-import AutoSaveTextarea from "@/components/AutoSaveTextarea";
+import Prompt from "@/components/Prompt";
+import GuideActions from "@/components/GuideActions";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -21,39 +21,6 @@ type Milestones = {
 };
 
 export default function SectionFourPage() {
-  const { user } = useAuth();
-  const docPath = user ? `user_progress/${user.uid}/sections/section-4` : null;
-
-  // Local helper to gate saving behind sign-in and standardise styling
-  const Field: React.FC<{
-    field: string;
-    label: string;
-    placeholder?: string;
-    rows?: number;
-  }> = ({ field, label, placeholder, rows = 6 }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            Sign in to save
-          </div>
-        </div>
-      );
-    }
-    return (
-      <AutoSaveTextarea
-        key={`${docPath}:${field}`}
-        docPath={docPath}
-        field={field}
-        label={label}
-        placeholder={placeholder}
-        rows={rows}
-      />
-    );
-  };
 
   // ----- Milestones (progress nudges; phrased as achievements)
   const [milestones, setMilestones] = useState<Milestones>({
@@ -143,6 +110,7 @@ export default function SectionFourPage() {
             Think in three pillars: <strong>Emotional</strong>, <strong>Practical</strong>, and <strong>Informational</strong>.
             The steps below help you build each pillar steadily.
           </p>
+          <GuideActions title="Section 4: Building Your Support System" />
         </SectionBlock>
 
         {/* Step 1: Emotional Support – Vent Buddy & Check-in Friend */}
@@ -193,11 +161,9 @@ export default function SectionFourPage() {
           </p>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="tasksList"
+            <Prompt
               label="List a few specific tasks others could help with:"
-              placeholder="Cooking a meal, school run, supermarket trip…"
-              rows={6}
+              hint="Cooking a meal, school run, supermarket trip…"
             />
           </div>
 
@@ -211,11 +177,9 @@ export default function SectionFourPage() {
           </div>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="shapeAsk"
+            <Prompt
               label="Try shaping one ask below:"
-              placeholder={`What?\nWhen?\nWhy?`}
-              rows={6}
+              hint={`What?\nWhen?\nWhy?`}
             />
           </div>
 
@@ -248,11 +212,9 @@ export default function SectionFourPage() {
           </p>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="healthAllyWho"
+            <Prompt
               label="Who might you know with health knowledge?"
-              placeholder="My pharmacist, a friend who is a nurse…"
-              rows={4}
+              hint="My pharmacist, a friend who is a nurse…"
             />
           </div>
 
@@ -261,11 +223,9 @@ export default function SectionFourPage() {
           </p>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="healthAllyMsg"
-              label="If you’d like, prepare a message here:"
-              placeholder={`“Sometimes the medical info feels overwhelming. Could I check in with you now and then so I’m clearer before speaking to the consultant?”`}
-              rows={4}
+            <Prompt
+              label="If you’d like, prepare a message:"
+              hint={`“Sometimes the medical info feels overwhelming. Could I check in with you now and then so I’m clearer before speaking to the consultant?”`}
             />
           </div>
 
@@ -396,11 +356,9 @@ export default function SectionFourPage() {
           </p>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="gapReflection"
+            <Prompt
               label="Capture one gap and where it belongs:"
-              placeholder={`Gap I noticed: …\nPillar it belongs to (Emotional/Practical/Informational): …\nNext micro-step: …`}
-              rows={6}
+              hint={`Gap I noticed: …\nPillar it belongs to (Emotional/Practical/Informational): …\nNext micro-step: …`}
             />
           </div>
 

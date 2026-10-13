@@ -1,17 +1,7 @@
 // components/Navbar.tsx
-"use client";
-
 import Link from "next/link";
-import { useAuth } from "@/components/AuthProvider";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 
 export default function Navbar() {
-  const { user, loading } = useAuth();
-
-  const sectionOneHref = "/course/section-1";
-  const signInUrl = `/signin?redirect=${encodeURIComponent(sectionOneHref)}`;
-
   return (
     <header className="w-full overflow-x-clip">
       <div className="mx-auto w-full max-w-[900px] px-4 sm:px-6">
@@ -32,35 +22,12 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="min-w-0 w-full md:w-auto mt-2 md:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            {loading ? (
-              <div
-                className="h-9 w-full sm:w-36 rounded-full bg-gray-200 animate-pulse"
-                aria-hidden
-              />
-            ) : user ? (
-              <>
-                <Link
-                  href={sectionOneHref}
-                  className="inline-flex items-center justify-center rounded-full px-5 py-2 text-[15px] md:text-[12px] font-semibold text-white bg-[#318484] hover:bg-[#3b9492] transition-colors w-full sm:w-auto text-center"
-                >
-                  Continue course
-                </Link>
-                <button
-                  onClick={() => signOut(auth)}
-                  className="inline-flex items-center justify-center rounded-full px-4 py-2 text-[12px] font-semibold border border-gray-300 hover:bg-gray-50 transition-colors w-full sm:w-auto text-center"
-                >
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <Link
-                href={signInUrl}
-                className="inline-flex items-center justify-center rounded-full px-5 py-2 text-[15px] md:text-[12px] font-semibold text-white bg-[#318484] hover:bg-[#3b9492] transition-colors w-full sm:w-auto text-center"
-                aria-label="Sign in"
-              >
-                Sign in
-              </Link>
-            )}
+            <Link
+              href="/note-from-the-creator"
+              className="inline-flex items-center justify-center rounded-full px-5 py-2 text-[15px] md:text-[12px] font-semibold text-white bg-[#318484] hover:bg-[#3b9492] transition-colors w-full sm:w-auto text-center"
+            >
+              A Note from the Creator
+            </Link>
           </div>
         </div>
       </div>

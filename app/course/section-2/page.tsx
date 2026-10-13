@@ -7,8 +7,9 @@ import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
-import { useAuth } from "@/components/useAuth";
-import AutoSaveTextarea from "@/components/AutoSaveTextarea";
+import Prompt from "@/components/Prompt";
+import GuideActions from "@/components/GuideActions";
+import CopyChecklistButton from "@/components/CopyChecklistButton";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -21,40 +22,13 @@ type Milestones = {
   hasSupport: boolean;
 };
 
-export default function SectionTwoPage() {
-  const { user } = useAuth();
-  const docPath = user ? `user_progress/${user.uid}/sections/section-2` : null;
+const WEEKLY_REVIEW = [
+  "Your current questions and answers",
+  "Any new symptoms or changes",
+  "Next steps or appointments coming up",
+];
 
-  // Local helper: gates saving behind sign-in and standardises styling
-  const Field: React.FC<{
-    field: string;
-    label: string;
-    placeholder?: string;
-    rows?: number;
-  }> = ({ field, label, placeholder, rows = 6 }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            Sign in to save
-          </div>
-        </div>
-      );
-    }
-    return (
-      <AutoSaveTextarea
-        key={`${docPath}:${field}`}
-        docPath={docPath}
-        field={field}
-        label={label}
-        placeholder={placeholder}
-        rows={rows}
-      />
-    );
-  };
+export default function SectionTwoPage() {
 
   // ----- Milestones (nudge progress) -----
   const [milestones, setMilestones] = useState<Milestones>({
@@ -148,6 +122,7 @@ export default function SectionTwoPage() {
             30 days gives you confidence, helps you spot potential challenges early, and makes it
             easier to support your loved one.
           </p>
+          <GuideActions title="Section 2: Mapping the Road Ahead" />
         </SectionBlock>
 
         {/* Step 1: Know who can give you the answers */}
@@ -177,10 +152,8 @@ export default function SectionTwoPage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="contacts"
-              label="If you don’t already know their names or contact details, note them here (or somewhere you can easily find later):"
-              rows={6}
+            <Prompt
+              label="If you don’t already know their names or contact details, note them down somewhere you can easily find later:"
             />
           </div>
 
@@ -264,11 +237,9 @@ export default function SectionTwoPage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="threeNs"
+            <Prompt
               label="Have a go at practising this now with one of your current questions:"
-              placeholder={`Name:\nNotice:\nNeutralise:`}
-              rows={6}
+              hint={`Name:\nNotice:\nNeutralise:`}
             />
           </div>
 
@@ -375,23 +346,10 @@ export default function SectionTwoPage() {
           </p>
 
           <div className="mt-4 max-w-[650px]">
-            <label className="mb-2 block text-sm font-semibold" style={{ color: NAVY }}>
-              What day/time will you use for your weekly review?
-            </label>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <Field
-                field="weeklyDay"
-                label="Day"
-                placeholder="e.g., Sunday"
-                rows={2}
-              />
-              <Field
-                field="weeklyTime"
-                label="Time"
-                placeholder="e.g., 6:30pm"
-                rows={2}
-              />
-            </div>
+            <Prompt
+              label="What day/time will you use for your weekly review?"
+              hint="e.g., Sunday at 6:30pm"
+            />
           </div>
 
           <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
@@ -399,10 +357,13 @@ export default function SectionTwoPage() {
               During your review, check:
             </h3>
             <ul className="mt-2 list-disc space-y-2 pl-5" style={{ color: NAVY }}>
-              <li>Your current questions and answers</li>
-              <li>Any new symptoms or changes</li>
-              <li>Next steps or appointments coming up</li>
+              {WEEKLY_REVIEW.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
+            <div className="mt-4">
+              <CopyChecklistButton title="Weekly review checklist" items={WEEKLY_REVIEW} />
+            </div>
           </div>
 
           <label className="mt-6 flex cursor-pointer select-none items-center gap-3">

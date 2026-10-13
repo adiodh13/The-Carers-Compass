@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
-import { useAuth } from "@/components/useAuth";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
 import Collapse from "@/components/Collapse";
 import TechniqueCard from "@/components/TechniqueCard";
 import ResourceCard from "@/components/ResourceCard";
 import MiniCard from "@/components/MiniCard";
-import AutoSaveTextarea from "@/components/AutoSaveTextarea";
+import Prompt from "@/components/Prompt";
+import GuideActions from "@/components/GuideActions";
 
 // ---- Theme
 const NAVY = "#2e3159";
@@ -23,49 +23,6 @@ type Milestones = {
 };
 
 export default function SectionOnePage() {
-  const { user, loading } = useAuth();
-
-  // Public page; only saving is gated by sign-in
-  const docPath = useMemo(
-    () => (user ? `user_progress/${user.uid}/sections/section-1` : null),
-    [user]
-  );
-
-  // Helper to render either the saving textarea (signed-in) or a "Sign in to save" box (signed-out)
-  const Field = ({
-    field,
-    label,
-    placeholder,
-    rows = 6,
-  }: {
-    field: string;
-    label: string;
-    placeholder?: string;
-    rows?: number;
-  }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            {loading ? "Loading…" : "Sign in to save"}
-          </div>
-        </div>
-      );
-    }
-    return (
-      <AutoSaveTextarea
-        key={`${docPath}:${field}`} // reset on user change
-        docPath={docPath}
-        field={field}
-        label={label}
-        placeholder={placeholder}
-        rows={rows}
-      />
-    );
-  };
 
   // Local milestone state (kept in localStorage)
   const [milestones, setMilestones] = useState<Milestones>({
@@ -188,25 +145,24 @@ export default function SectionOnePage() {
             Now, let’s begin reflecting. You’ll see some prompts below. You don’t need to
             answer them all right now; even completing one or two can help. There are no
             wrong answers. Getting thoughts out of your head and onto a page (or into a
-            recording) makes them visible and easier to handle. You can type in the box,
-            write on paper, or record your voice. The best way is whatever feels most
-            natural to you.
+            recording) makes them visible and easier to handle. You can write on paper,
+            jot them in your phone’s notes app, or record your voice. The best way is
+            whatever feels most natural to you.
           </p>
+
+          <GuideActions title="Section 1: Steadying Yourself for the Road Ahead" />
 
           {/* Reflection Prompts */}
           <div className="mt-6 space-y-6">
             <Collapse title="Questions, worries and emotions">
               <div className="space-y-5">
-                <Field
-                  field="q1"
+                <Prompt
                   label="What questions do I have right now?"
                 />
-                <Field
-                  field="q2"
+                <Prompt
                   label="What is worrying me the most at this moment?"
                 />
-                <Field
-                  field="emotions"
+                <Prompt
                   label="What emotions am I feeling?"
                 />
               </div>
@@ -214,22 +170,19 @@ export default function SectionOnePage() {
 
             <Collapse title="Stray thoughts, talking to someone and Next steps">
               <div className="space-y-5">
-                <Field
-                  field="strayThoughts"
+                <Prompt
                   label="Are there any stray thoughts worth noting down, even if they seem small or random?"
                 />
-                <Field
-                  field="talkToSomeone"
+                <Prompt
                   label="Do I want to talk to someone (professional or otherwise)? What would I like to say?"
                 />
-                <Field
-                  field="nextSteps"
+                <Prompt
                   label="Were we told or recommended to do anything next?"
                 />
               </div>
             </Collapse>
             <p className="text-sm" style={{ color: NAVY }}>
-              Remember: you can come back and add more at any time.
+              Remember: you can come back to these questions at any time.
             </p>
           </div>
 
@@ -276,8 +229,7 @@ export default function SectionOnePage() {
           </p>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="anxietyReflection"
+            <Prompt
               label="Reflection first: When I feel anxious, what do I usually do?"
             />
           </div>
@@ -378,10 +330,9 @@ export default function SectionOnePage() {
           </div>
 
           <div className="mt-5 max-w-[650px]">
-            <Field
-              field="smallSteps"
-              label="Jot down 1 to 3 steps here. They don’t have to be perfect:"
-              placeholder="Write your small steps here…"
+            <Prompt
+              label="Jot down 1 to 3 steps. They don’t have to be perfect:"
+              hint="Write your small steps here…"
             />
           </div>
 

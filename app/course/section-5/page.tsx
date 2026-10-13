@@ -5,9 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
-import { useAuth } from "@/components/useAuth";
-import AutoSaveTextarea from "@/components/AutoSaveTextarea";
-import FBSelect from "@/components/FBSelect";
+import Prompt from "@/components/Prompt";
+import GuideActions from "@/components/GuideActions";
+import CopyChecklistButton from "@/components/CopyChecklistButton";
 
 const NAVY = "#2e3159";
 const TEAL = "#318484";
@@ -18,71 +18,14 @@ type Milestones = {
   letterWritten: boolean;
 };
 
+const LEGAL_AREAS = [
+  "Power of Attorney (finance/health)",
+  "Advance wishes (treatment preferences, DNACPR, etc.)",
+  "Benefits & entitlements (Carer’s Allowance, blue badge, travel help)",
+  "Wills & inheritance",
+];
+
 export default function SectionFivePage() {
-  const { user } = useAuth();
-  const docPath = user ? `user_progress/${user.uid}/sections/section-5` : null;
-
-  // Helper for textareas (gate behind sign-in)
-  const Field: React.FC<{
-    field: string;
-    label: string;
-    placeholder?: string;
-    rows?: number;
-  }> = ({ field, label, placeholder, rows = 6 }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            Sign in to save
-          </div>
-        </div>
-      );
-    }
-    return (
-      <AutoSaveTextarea
-        key={`${docPath}:${field}`}
-        docPath={docPath}
-        field={field}
-        label={label}
-        placeholder={placeholder}
-        rows={rows}
-      />
-    );
-  };
-
-  // Helper for selects: show dashed sign-in box if logged out; otherwise render FBSelect unchanged
-  const SelectField: React.FC<{
-    label: string;
-    fieldKey: string;
-    options: { value: string; label: string }[];
-  }> = ({ label, fieldKey, options }) => {
-    if (!docPath) {
-      return (
-        <div className="w-full">
-          <label className="mb-2 block text-sm font-medium" style={{ color: NAVY }}>
-            {label}
-          </label>
-          <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600">
-            Sign in to save
-          </div>
-        </div>
-      );
-    }
-    // We keep FBSelect's existing API (sectionId/fieldKey) so your component logic continues to work.
-    return (
-      <FBSelect
-        sectionId="section-5"
-        fieldKey={fieldKey}
-        label={label}
-        navy={NAVY}
-        options={options}
-      />
-    );
-  };
-
   // ----- Milestones (progress nudges)
   const [milestones, setMilestones] = useState<Milestones>({
     legalStep: false,
@@ -162,6 +105,7 @@ export default function SectionFivePage() {
             You’ve built systems, gathered tools, and practised new ways of caring. This final section ties
             it together and sends you off with confidence—a pocket-sized guide for the road ahead.
           </p>
+          <GuideActions title="Section 5: Taking It Forward" />
         </SectionBlock>
 
         {/* Step 1: Legal and Admin */}
@@ -184,51 +128,32 @@ export default function SectionFivePage() {
             Then choose one item you’re unsure about and write how you’ll find out (ask your GP, call Macmillan, check Citizens Advice).
           </p>
 
-          <div className="mt-3 space-y-3">
-            <SelectField
-              fieldKey="poa"
-              label="Power of Attorney (finance/health)"
-              options={[
-                { value: "Yes", label: "Yes" },
-                { value: "No", label: "No" },
-                { value: "Unsure", label: "Unsure" },
-              ]}
-            />
-            <SelectField
-              fieldKey="advance"
-              label="Advance wishes (treatment preferences, DNACPR, etc.)"
-              options={[
-                { value: "Yes", label: "Yes" },
-                { value: "No", label: "No" },
-                { value: "Unsure", label: "Unsure" },
-              ]}
-            />
-            <SelectField
-              fieldKey="benefits"
-              label="Benefits & entitlements (Carer’s Allowance, blue badge, travel help)"
-              options={[
-                { value: "Yes", label: "Yes" },
-                { value: "No", label: "No" },
-                { value: "Unsure", label: "Unsure" },
-              ]}
-            />
-            <SelectField
-              fieldKey="wills"
-              label="Wills & inheritance"
-              options={[
-                { value: "Yes", label: "Yes" },
-                { value: "No", label: "No" },
-                { value: "Unsure", label: "Unsure" },
-              ]}
+          <ul className="mt-3 space-y-2">
+            {LEGAL_AREAS.map((area) => (
+              <li
+                key={area}
+                className="flex items-start gap-3 rounded-lg bg-white px-4 py-3 text-[15px] ring-1 ring-black/5"
+                style={{ color: NAVY }}
+              >
+                <span aria-hidden className="mt-0.5 h-4 w-4 flex-none rounded border border-[rgba(46,49,89,0.3)]" />
+                <span>
+                  {area}
+                  <span className="ml-2 opacity-60">Yes / No / Unsure</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3">
+            <CopyChecklistButton
+              title="Legal and admin: does this apply to us? (Yes / No / Unsure)"
+              items={LEGAL_AREAS}
             />
           </div>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="legalFollowUp"
+            <Prompt
               label="Item I’ll follow up on + how I’ll do it:"
-              placeholder="e.g. Blue badge — call council helpline; Power of Attorney — check gov.uk guidance, ask CNS for signposting…"
-              rows={6}
+              hint="e.g. Blue badge — call council helpline; Power of Attorney — check gov.uk guidance, ask CNS for signposting…"
             />
           </div>
 
@@ -269,11 +194,9 @@ export default function SectionFivePage() {
           </div>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="moments"
+            <Prompt
               label="My moments:"
-              placeholder="Tea together, music, evening walk…"
-              rows={6}
+              hint="Tea together, music, evening walk…"
             />
           </div>
 
@@ -319,11 +242,9 @@ export default function SectionFivePage() {
           </div>
 
           <div className="mt-4 max-w-[650px]">
-            <Field
-              field="futureLetter"
+            <Prompt
               label="My three lines:"
-              placeholder="Line 1 / Line 2 / Line 3 / Line 4"
-              rows={6}
+              hint="Line 1 / Line 2 / Line 3 / Line 4"
             />
           </div>
 
