@@ -3,21 +3,14 @@
 
 type Props = {
   title: string;
-  icon: string; // emoji or small svg
   desc: string;
-  navy: string;
 };
 
-export default function MiniCard({ title, icon, desc, navy }: Props) {
+export default function MiniCard({ title, desc }: Props) {
   return (
-    <div className="min-w-0 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5">
-      <div className="flex items-center gap-2">
-        <span aria-hidden className="text-xl">{icon}</span>
-        <h4 className="text-[15px] font-semibold" style={{ color: navy }}>
-          {title}
-        </h4>
-      </div>
-      <p className="mt-2 text-sm opacity-90 break-words" style={{ color: navy }}>
+    <div className="min-w-0 border-t border-line pt-3">
+      <h4 className="display text-[1.3rem] leading-tight">{title}</h4>
+      <p className="mt-1 break-words text-[1.1rem] leading-relaxed text-ink-soft">
         {/* Allow line breaks after slashes so "charity/hospital/professional" can wrap */}
         {desc.replace(/\//g, "/​")}
       </p>

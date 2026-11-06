@@ -1,4 +1,6 @@
 // components/FadeIn.tsx
+// The site's one fade: content rests in place and its opacity rises as it comes into view.
+// It is deliberately opacity alone. Sliding text re-renders it, which reads as a jolt.
 "use client";
 
 import { useEffect, useRef, useState, type ElementType } from "react";
@@ -7,50 +9,35 @@ import clsx from "clsx";
 type Props = {
   children: React.ReactNode;
   className?: string;
-  /** Which element/component to render as, e.g. "section", "div", "article" */
+  /** Which element to render as, e.g. "section", "div", "article" */
   as?: ElementType;
-  delayMs?: number;
 };
 
-export default function FadeIn({
-  children,
-  className,
-  as,
-  delayMs = 0,
-}: Props) {
-  // Default to 'section' but allow any valid element or component
+export default function FadeIn({ children, className, as }: Props) {
   const Component = (as || "section") as ElementType;
 
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(
+    const el = ref.current;
+    if (!el) return;
+    // Any overlap counts, because some of these blocks are several screens tall
+    const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            const id = setTimeout(() => setVisible(true), delayMs);
-            obs.disconnect();
-            return () => clearTimeout(id);
-          }
-        });
+        if (entries[0].isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.15 }
+      { rootMargin: "0px 0px -8% 0px" }
     );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [delayMs]);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Component
-      ref={ref}
-      className={clsx(
-        "transition-all duration-700 ease-gentle will-change-[transform,opacity]",
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-        className
-      )}
-    >
+    <Component ref={ref} className={clsx("fade", className)} data-visible={visible}>
       {children}
     </Component>
   );

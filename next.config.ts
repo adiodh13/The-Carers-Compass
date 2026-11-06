@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // These pages now live as sections of the home page
+  async redirects() {
+    return [
+      { source: "/course-outline", destination: "/#guide", permanent: false },
+      { source: "/note-from-the-creator", destination: "/#note", permanent: false },
+    ];
+  },
+
   webpack(config) {
     // Exclude .svg from Next.js's default file loader
     const fileLoaderRule = config.module.rules.find((rule: any) =>
