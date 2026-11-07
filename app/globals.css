@@ -592,6 +592,7 @@ h3 {
   /* Fade-in blocks may not have scrolled into view yet; show everything */
   .fade {
     opacity: 1 !important;
+    transition: none !important;
   }
 
   .sun,
@@ -603,6 +604,7 @@ h3 {
   .reveal {
     grid-template-rows: 1fr !important;
     opacity: 1 !important;
+    transition: none !important;
   }
 
   body {
