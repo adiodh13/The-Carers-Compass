@@ -3,8 +3,6 @@
 
 import { useState } from "react";
 
-const TEAL = "#318484";
-
 /** Copies text to the clipboard, falling back to a hidden textarea on older browsers. */
 async function copyText(text: string) {
   try {
@@ -60,8 +58,7 @@ export default function CopyChecklistButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2 text-sm font-semibold transition hover:bg-[rgba(49,132,132,0.08)] active:translate-y-[1px] print:hidden"
-      style={{ borderColor: TEAL, color: TEAL }}
+      className="text-link print:hidden"
     >
       <span aria-live="polite">
         {state === "copied" ? "Copied ✓" : state === "failed" ? "Couldn’t copy" : label}

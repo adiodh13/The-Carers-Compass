@@ -1,8 +1,6 @@
 // app/course/finish/page.tsx
 import Link from "next/link";
-
-const NAVY = "#2e3159";
-const TEAL = "#318484";
+import FadeIn from "@/components/FadeIn";
 
 const FEEDBACK_EMAIL = "team@thecarerscompass.com";
 
@@ -17,53 +15,41 @@ const FEEDBACK_QUESTIONS = [
 
 export default function FinishPage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "rgba(236,245,243,0.5)" }}>
-      <main className="mx-auto w-full max-w-3xl px-6 py-10 md:px-8">
-        <h1 className="text-3xl font-semibold md:text-4xl" style={{ color: NAVY }}>
-          Help Us Make The Carer’s Compass Even Better
-        </h1>
-        <p className="mt-4 max-w-[650px] leading-relaxed" style={{ color: NAVY }}>
-          Thank you for walking through this guide.
-          If you’d like, you can share a few thoughts about your experience. This is completely optional and
-          only takes a couple of minutes. Your feedback will help us improve the guide for future carers.
+    <FadeIn as="article" className="stage">
+      <h1 className="stage-title">Help Us Make The Carer’s Compass Even Better</h1>
+      <p className="lede mt-8">
+        Thank you for walking through this guide. If you’d like, you can share a few thoughts about
+        your experience. This is completely optional and only takes a couple of minutes. Your
+        feedback will help us improve the guide for future carers.
+      </p>
+
+      <section className="mt-14">
+        <h2 className="stage-sub">A few questions you could answer</h2>
+        <ul className="mt-4 list-disc space-y-2 pl-5">
+          {FEEDBACK_QUESTIONS.map((q) => (
+            <li key={q}>{q}</li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[1.05rem] text-ink-soft">
+          Answer as many or as few as you like. Nothing is stored on this site.
         </p>
+        <p className="mt-6">
+          Send your thoughts to{" "}
+          <a href={`mailto:${FEEDBACK_EMAIL}`} className="text-link font-medium">
+            {FEEDBACK_EMAIL}
+          </a>
+        </p>
+      </section>
 
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-          <h2 className="text-xl font-semibold" style={{ color: NAVY }}>
-            A few questions you could answer
-          </h2>
-          <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed" style={{ color: NAVY }}>
-            {FEEDBACK_QUESTIONS.map((q) => (
-              <li key={q}>{q}</li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm leading-relaxed opacity-80" style={{ color: NAVY }}>
-            Answer as many or as few as you like. Nothing is stored on this site.
-          </p>
-          <p className="mt-4 leading-relaxed" style={{ color: NAVY }}>
-            Send your thoughts to{" "}
-            <span className="select-all font-semibold">{FEEDBACK_EMAIL}</span>
-          </p>
-        </div>
-
-        <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-          <p className="leading-relaxed" style={{ color: NAVY }}>
-            <em>
-              “Every carer’s voice helps shape this guide, and yours will make a difference for the next
-              person who walks this path.”
-            </em>
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link
-              href="/course-outline"
-              className="inline-flex items-center justify-center rounded-full border px-5 py-2 text-sm font-semibold transition hover:bg-[rgba(49,132,132,0.08)]"
-              style={{ borderColor: TEAL, color: TEAL }}
-            >
-              Revisit any section
-            </Link>
-          </div>
-        </div>
-      </main>
-    </div>
+      <section className="mt-16 border-t border-line pt-10">
+        <p className="display text-[1.7rem] italic leading-snug">
+          “Every carer’s voice helps shape this guide, and yours will make a difference for the
+          next person who walks this path.”
+        </p>
+        <Link href="/#guide" className="text-link cta mt-8 inline-block">
+          Revisit any section
+        </Link>
+      </section>
+    </FadeIn>
   );
 }

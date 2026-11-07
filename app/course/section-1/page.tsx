@@ -1,9 +1,6 @@
-"use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
 
-import ProgressBar from "@/components/ProgressBar";
 import SectionBlock from "@/components/SectionBlock";
 import Collapse from "@/components/Collapse";
 import TechniqueCard from "@/components/TechniqueCard";
@@ -12,105 +9,23 @@ import MiniCard from "@/components/MiniCard";
 import Prompt from "@/components/Prompt";
 import GuideActions from "@/components/GuideActions";
 
-// ---- Theme
-const NAVY = "#2e3159";
-const TEAL = "#318484";
-
-// ---- Types
-type Milestones = {
-  calmingTried: boolean;
-  smallStepTaken: boolean;
-};
-
 export default function SectionOnePage() {
 
-  // Local milestone state (kept in localStorage)
-  const [milestones, setMilestones] = useState<Milestones>({
-    calmingTried: false,
-    smallStepTaken: false,
-  });
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("section1:milestones");
-      if (raw) setMilestones(JSON.parse(raw));
-    } catch {}
-  }, []);
-  useEffect(() => {
-    try {
-      localStorage.setItem("section1:milestones", JSON.stringify(milestones));
-    } catch {}
-  }, [milestones]);
-
-  // Scroll progress
-  const pageRef = useRef<HTMLDivElement | null>(null);
-  const [scrollPct, setScrollPct] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      if (!pageRef.current) return;
-      const total = pageRef.current.scrollHeight - window.innerHeight;
-      const scrolled = Math.min(Math.max(window.scrollY, 0), total);
-      const pct = total > 0 ? (scrolled / total) * 100 : 0;
-      setScrollPct(pct);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
-  // Derived UI values
-  const bonusPct = useMemo(() => {
-    let bonus = 0;
-    if (milestones.calmingTried) bonus += 7.5;
-    if (milestones.smallStepTaken) bonus += 7.5;
-    return bonus;
-  }, [milestones]);
-  const effectiveProgress = Math.min(100, Math.max(scrollPct, bonusPct));
-
-  // Calming techniques collapse state
-  const [showTechniques, setShowTechniques] = useState(false);
-
   return (
-    <div
-      ref={pageRef}
-      style={{ backgroundColor: "rgba(236, 245, 243, 0.5)" }}
-      className="min-h-screen"
-    >
-      {/* --- STICKY PROGRESS HEADER --- */}
-      <div className="sticky top-0 z-40 border-b border-black/5 bg-[rgba(236,245,243,0.8)] backdrop-blur">
-        <div className="mx-auto w-full max-w-3xl px-6 py-3 md:px-8">
-          <div
-            className="mb-1 flex items-center justify-between text-xs md:text-sm"
-            style={{ color: NAVY }}
-          >
-            <span className="font-medium">Section 1 of 5</span>
-            <span aria-live="polite">{Math.round(effectiveProgress)}%</span>
-          </div>
-          <ProgressBar value={effectiveProgress} barColor={TEAL} />
-        </div>
-      </div>
+    <article className="stage">
 
-      {/* Main content */}
-      <main className="mx-auto w-full max-w-3xl px-6 pb-28 pt-6 md:px-8">
         {/* Hero / Section Intro */}
         <SectionBlock>
-          <h1
-            className="text-3xl font-semibold leading-snug md:text-4xl"
-            style={{ color: NAVY }}
-          >
-            Section 1: Steadying Yourself for the Road Ahead
+          <h1 className="stage-title">
+            <span className="stage-eyebrow">Section 1</span>
+            Steadying Yourself for the Road Ahead
           </h1>
           <h2
-            className="mt-3 text-xl font-semibold md:text-2xl"
-            style={{ color: NAVY }}
+            className="stage-sub mt-5"
           >
             Step 1: Finding Clarity in a Storm
           </h2>
-          <p className="mt-5 max-w-[650px] leading-relaxed" style={{ color: NAVY }}>
+          <p className="mt-5 max-w-[650px]">
             When someone you love is diagnosed with cancer, your mind can feel like a
             crowded room where thoughts and worries all speak at once. The first step
             isn’t to solve everything. It’s simply to notice what’s happening inside you.
@@ -120,28 +35,28 @@ export default function SectionOnePage() {
           </p>
 
           {/* Grounding Exercise Card */}
-          <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <div className="mt-6 panel">
             <div className="flex items-start gap-5">
-              <div className="hidden h-16 w-16 flex-none animate-breathe rounded-full bg-[rgba(49,132,132,0.15)] md:block" />
+              <div className="hidden h-16 w-16 flex-none animate-breathe rounded-full md:block" />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold" style={{ color: NAVY }}>
+                <h3 className="stage-sub">
                   Quick Grounding Exercise (30 seconds)
                 </h3>
-                <ol className="mt-3 list-decimal space-y-2 pl-5" style={{ color: NAVY }}>
+                <ol className="mt-3 list-decimal space-y-2 pl-5">
                   <li>Breathe in slowly through your nose for 4 seconds.</li>
                   <li>Hold that breath for 4 seconds.</li>
                   <li>Exhale gently through your mouth for 4 seconds.</li>
                   <li>Pause for 4 seconds.</li>
                   <li>Repeat once more.</li>
                 </ol>
-                <p className="mt-3 italic" style={{ color: NAVY }}>
+                <p className="mt-3 italic">
                   Notice how even two rounds of this can soften the edges a little.
                 </p>
               </div>
             </div>
           </div>
 
-          <p className="mt-6 max-w-[650px] leading-relaxed" style={{ color: NAVY }}>
+          <p className="mt-6 max-w-[650px]">
             Now, let’s begin reflecting. You’ll see some prompts below. You don’t need to
             answer them all right now; even completing one or two can help. There are no
             wrong answers. Getting thoughts out of your head and onto a page (or into a
@@ -181,14 +96,14 @@ export default function SectionOnePage() {
                 />
               </div>
             </Collapse>
-            <p className="text-sm" style={{ color: NAVY }}>
+            <p className="text-[1.1rem]">
               Remember: you can come back to these questions at any time.
             </p>
           </div>
 
           {/* Resource Links */}
           <div className="mt-8">
-            <p className="mb-4 text-sm" style={{ color: NAVY }}>
+            <p className="mb-4 text-[1.1rem]">
               If you’d prefer to talk instead of write, these resources are here whenever you need them:
             </p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -196,22 +111,16 @@ export default function SectionOnePage() {
                 name="Maggie’s Centres"
                 desc="Free support and drop-in locations."
                 href="https://www.maggies.org/"
-                navy={NAVY}
-                teal={TEAL}
               />
               <ResourceCard
                 name="Macmillan Cancer Support"
                 desc="Helpline & local opportunities."
                 href="https://community.macmillan.org.uk/"
-                navy={NAVY}
-                teal={TEAL}
               />
               <ResourceCard
                 name="Samaritans"
                 desc="24/7 listening line."
                 href="https://www.samaritans.org/how-we-can-help/contact-samaritan/"
-                navy={NAVY}
-                teal={TEAL}
               />
             </div>
           </div>
@@ -219,10 +128,10 @@ export default function SectionOnePage() {
 
         {/* Step 2: Calming Panic */}
         <SectionBlock>
-          <h2 className="text-2xl font-semibold md:text-[28px]" style={{ color: NAVY }}>
+          <h2 className="stage-step">
             Step 2: Calming Panic When It Arises
           </h2>
-          <p className="mt-3 leading-relaxed" style={{ color: NAVY }}>
+          <p className="mt-3">
             Moments of panic or anxiety are normal. Your heart may race, your chest may feel
             tight, or your thoughts may spiral. You are not alone in this. And the good news is:
             there are simple ways to calm your body and mind.
@@ -234,17 +143,8 @@ export default function SectionOnePage() {
             />
           </div>
 
-          <button
-            onClick={() => setShowTechniques((s) => !s)}
-            className="mt-5 inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
-            style={{ backgroundColor: TEAL }}
-            aria-expanded={showTechniques}
-          >
-            {showTechniques ? "Hide calming techniques" : "Show me calming techniques"}
-          </button>
-
-          {showTechniques && (
-            <div className="mt-6 space-y-4">
+          <Reveal showLabel="Show me calming techniques" hideLabel="Hide calming techniques">
+            <div className="mt-1 space-y-4 pt-5">
               <TechniqueCard
                 title="Box Breathing (under 1 minute)"
                 steps={[
@@ -254,7 +154,6 @@ export default function SectionOnePage() {
                   "Pause for 4.",
                 ]}
                 subtext="Just 3 rounds can calm your body’s stress response."
-                navy={NAVY}
               />
               <TechniqueCard
                 title="Grounding with Your Senses (2 minutes)"
@@ -266,7 +165,6 @@ export default function SectionOnePage() {
                   "1 thing you can taste.",
                 ]}
                 subtext="This pulls you back from spiralling thoughts into the present moment."
-                navy={NAVY}
               />
               <TechniqueCard
                 title="Quick Muscle Release (1–2 minutes)"
@@ -276,50 +174,31 @@ export default function SectionOnePage() {
                   "Press your jaw shut, then relax.",
                 ]}
                 subtext="Letting your muscles soften helps your mind follow."
-                navy={NAVY}
               />
             </div>
-          )}
+          </Reveal>
 
-          <label className="mt-6 flex cursor-pointer select-none items-center gap-3">
-            <input
-              type="checkbox"
-              className="peer h-5 w-5 appearance-none rounded-md border border-[rgba(46,49,89,0.2)] outline-none transition checked:animate-checkpop checked:border-transparent"
-              style={{
-                backgroundColor: milestones.calmingTried ? TEAL : "white",
-                boxShadow: milestones.calmingTried ? "inset 0 0 0 2px white" : "none",
-              }}
-              checked={milestones.calmingTried}
-              onChange={(e) =>
-                setMilestones((m) => ({ ...m, calmingTried: e.target.checked }))
-              }
-              aria-label="I’ve tried a calming technique."
-            />
-            <span className="text-[15px]" style={{ color: NAVY }}>
-              I’ve tried a calming technique.
-            </span>
-          </label>
         </SectionBlock>
 
         {/* Step 3: Taking Small Steps */}
         <SectionBlock>
-          <h2 className="text-2xl font-semibold md:text-[28px]" style={{ color: NAVY }}>
+          <h2 className="stage-step">
             Step 3: Taking Small Steps Forward
           </h2>
-          <p className="mt-3 leading-relaxed" style={{ color: NAVY }}>
+          <p className="mt-3">
             Overwhelm grows when everything feels too big. The antidote is starting small. Tiny
             steps may feel almost trivial, but they shift you from frozen to moving. Have a look
             back at your reflections. Choose 1–3 small, low-effort steps you could take today.
           </p>
 
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <MiniCard title="Emotional" icon="💬" desc="Send a short text to a friend." navy={NAVY} />
-            <MiniCard title="Practical" icon="🗓️" desc="Put tomorrow’s appointment letter in your bag." navy={NAVY} />
-            <MiniCard title="Self-care" icon="❤️" desc="Drink a glass of water or step outside for fresh air." navy={NAVY} />
+            <MiniCard title="Emotional" desc="Send a short text to a friend." />
+            <MiniCard title="Practical" desc="Put tomorrow’s appointment letter in your bag." />
+            <MiniCard title="Self-care" desc="Drink a glass of water or step outside for fresh air." />
           </div>
 
-          <div className="mt-5 rounded-xl bg-[rgba(49,132,132,0.08)] p-4 ring-1 ring-[rgba(49,132,132,0.2)]">
-            <p className="italic leading-relaxed" style={{ color: NAVY }}>
+          <div className="mt-5 tip">
+            <p className="italic">
               Tip: Try turning one of your ideas into an “If–then” plan:
               <br />
               “If I feel panic rising, then I will try 2 rounds of box breathing.”
@@ -336,29 +215,11 @@ export default function SectionOnePage() {
             />
           </div>
 
-          <label className="mt-6 flex cursor-pointer select-none items-center gap-3">
-            <input
-              type="checkbox"
-              className="peer h-5 w-5 appearance-none rounded-md border border-[rgba(46,49,89,0.2)] outline-none transition checked:animate-checkpop checked:border-transparent"
-              style={{
-                backgroundColor: milestones.smallStepTaken ? TEAL : "white",
-                boxShadow: milestones.smallStepTaken ? "inset 0 0 0 2px white" : "none",
-              }}
-              checked={milestones.smallStepTaken}
-              onChange={(e) =>
-                setMilestones((m) => ({ ...m, smallStepTaken: e.target.checked }))
-              }
-              aria-label="I have taken at least one small step to steady myself."
-            />
-            <span className="text-[15px]" style={{ color: NAVY }}>
-              I have taken at least one small step to steady myself.
-            </span>
-          </label>
         </SectionBlock>
 
         {/* Closing Section */}
         <SectionBlock>
-          <p className="mx-auto max-w-[650px] text-center leading-relaxed" style={{ color: NAVY }}>
+          <p className="mx-auto max-w-[650px] text-center">
             You’ve just done some of the hardest work: pausing, calming, and starting to sort
             through the noise. This isn’t about fixing everything today. It’s about building a
             steady foundation for what comes next.
@@ -366,14 +227,12 @@ export default function SectionOnePage() {
           <div className="mt-6 flex justify-center">
             <Link
               href="/course/section-2"
-              className="rounded-full px-6 py-3 font-semibold text-white transition hover:opacity-95 active:translate-y-[1px]"
-              style={{ backgroundColor: TEAL }}
+              className="text-link cta inline-block"
             >
               Take me to Section 2
             </Link>
           </div>
         </SectionBlock>
-      </main>
-    </div>
+    </article>
   );
 }

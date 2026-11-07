@@ -11,8 +11,6 @@ export default async function sitemap() {
   ];
   return [
     { url: `${base}/`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${base}/note-from-the-creator`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/course-outline`, changeFrequency: "weekly", priority: 0.8 },
     ...guidePages.map((path) => ({
       url: `${base}${path}`,
       changeFrequency: "monthly",
